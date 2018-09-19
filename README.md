@@ -29,14 +29,4 @@ This command compiles chartr-diffusion.c and then link the output object file in
 
 The implementation has not been tested on windows.
 
-## Flowchart for the toolbox
-
-
-## Files and their description
-
-| <b> Filename </b> |  <b> Type </b> |  <b> Utility </b> |
-| -------- | ---- | --------------------------------------------------------|
-| chartr-modelspec.c | C file | Does all the heavy lifting of actually implementing the models associated with the modeling. The models described below are all implemented in this function. |
-| chartr-helperfunctions.r | R file | Contains functions for moving from a given model name to return the actual parameters, the lower and upper bounds, and the mapping of parameters for the C function|
-| EAM-UGM-FitRoutines.r | R file | Contains functions for creating the QMPE statistic for fitting the response time distributions |
 
