@@ -13,7 +13,7 @@ dyn.load("chartr-modelspec.so")
 # load RS2002 data sets to find suitable subjects
 
 useAIC = FALSE;
-whichDir = "Example4";
+whichDir = "caseStudy2";
 resultsDir = "_Fits/";
 subjectDir = paste(getwd(),'/', whichDir,sep='')
 
@@ -41,14 +41,6 @@ for(s in fnams) {
 #
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
-#modelList = c("DDM", "DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt","UGMSvSt","bUGMSvSb","bUGMSvSt","UGM")
-
-#modelList = c("DDM", "DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
- #             "cDDMSvSzSt", "cfkDDMSvSzSt", "cDDMSvSt", "cfkDDMSvSt",
-  #            "uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv",
-   #           "dDDMSvSzSt",'dDDMSvSt')
-
-#modelList = c("bUGMSvSb","cDDMSvSzSt","cfkDDMSvSzSt","uDDMSvSb","bUGMSvSt","UGMSvSt")
 usemodel = modelList;
 
 

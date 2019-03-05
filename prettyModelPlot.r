@@ -2,7 +2,7 @@ library(ggplot2)
 library(gridExtra)
 library(ggthemes)
 
-useAIC = TRUE;
+useAIC = FALSE;
 
 
 # 2. Calculate AIC, BIC, AIC weights, BIC weights

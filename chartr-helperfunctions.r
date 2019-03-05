@@ -1,30 +1,25 @@
 # diffusion model - compare fixed and collapsing bounds #
-
 # load C functions
 
 dyn.load("chartr-modelspec.so")
 
 # convert into a table object for the future so that life is a bit easier
-# 23 models 
+# 24 models 
 returnListOfModels = function()
 {
   modelList = c(
     "DDM",                     # -1
     "DDMSv",                   # -2
     "DDMSvSt",                 # -3
-    "dDDMSvSt",                # -6
-    "DDMSvSzSt",               # -7
-    "DDMSvSz",                 # -8
-    "cDDMSvSt",                # -9
-    "dDDMSv",                  # -10
-    "cfkDDMSvSt",              # -11
-    "dDDMSvSzSt",              # -12
-    "cfkDDMSvSzSt",            # -13
-    "cDDMSvSzSt",              # -14
-    "cDDMSv",                  # -15
-    "cDDMSvSz",                # -16
-    "cfkDDMSv",                # -17
-    "cfkDDMSvSz",              # -18
+    "dDDMSvSt",                # -4
+    "DDMSvSzSt",               # -5
+    "DDMSvSz",                 # -6
+    "cDDMSvSt",                # -7
+    "dDDMSv",                  # -8
+    "cfkDDMSvSt",              # -9
+    "dDDMSvSzSt",              # -10
+    "cfkDDMSvSzSt",            # -11
+    "cDDMSvSzSt",              # -12
     "UGM",                     #  1
     "UGMSt",                   #  2 
     "UGMSv",                   #  3
@@ -33,14 +28,19 @@ returnListOfModels = function()
     "bUGMSvSt",                #  6       
     "bUGMSvSb",                #  7       
     "bUGMSvSbSt",              #  8
-    "uDDMSvSb",                #  10 // A simple urgency model that has no time constant or low pass filtering
-    "uDDMSv",                  #  11
-    "uDDMSvSbSt",              #  12 
-    "uDDMSvSt"                #  13
-  #  "cUGMSvSt"                 #  14    
+    "uDDMSvSb",                #  9 // A simple urgency model that has no time constant or low pass filtering
+    "uDDMSv",                  #  10
+    "uDDMSvSbSt",              #  11 
+    "uDDMSvSt"                 #  12
   );
+
+  #"cDDMSv",                  # -15
+  #"cDDMSvSz",                # -16
+  #"cfkDDMSv",                # -17
+  #"cfkDDMSvSz",              # -18
+  #"cUGMSvSt"                #  13    
   
-  modelIds = c(-1,-2,-3,-6,-7, -8, -9,-10,-11,-12,-13,-14,-15,-16,-17,-18, 1,2,3,4,5,6,7,8,10,11, 12, 13)
+  modelIds = c(seq(-1,-12), seq(1,12));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -53,13 +53,15 @@ printModels = function()
   modelList = sort(modelList, decreasing=TRUE)
   
   cat(sprintf("CHaRTr has %d models", length(modelList)))
+  priorClass = '';
   for(m in modelList)
   {
-    cat(sprintf("\n%15s", m))
     firstChar = substr(m,1,1);
-    
+    if(firstChar!=priorClass)
+      cat("\n");
+    cat(sprintf("\n%15s", m))
+
     switch(firstChar,
-           
            "D"={
              modelClass = "DDM"
            },
@@ -80,11 +82,14 @@ printModels = function()
            }
            
     )
+    priorClass = firstChar;
     cat(sprintf(" ----- %s",modelClass))
   }
 }
 
-# This function returns an integer that evaluates the 
+
+
+# Generates the parameters and 
 paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 {
   # Non UGMs will have values less than 0
@@ -118,9 +123,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   TempNamesDDM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
                 "zmin","zmax","sx","sy","delay","lambda", "aprime","k");
   
-  # Now a' is a multiplier of aU/2, previously I allowed it to freely vary and it ended up close to 1.
-  # 
-  
+ 
   fakeParsDDM = c(seq(0.04, 0.4, length.out = NdriftRates), 0.08, 0.3, 0.1, 0.15, 0.08, 0.12, 9, 9,0.14, 5, 0.3, 10);
   names(fakeParsDDM) = TempNamesDDM;
   

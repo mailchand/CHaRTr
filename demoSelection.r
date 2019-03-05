@@ -9,35 +9,16 @@ VERBOSE = TRUE;
 
 
 
-dataDir = "Example2/"
-resultsDir = 'Example2_NewFits/'
-subjnam = "Subj2"
-
-dataDir = "colgrid/"
-resultsDir = 'colgrid_FinalFits/'
-subjnam = 'Tiberius.Rdata'
+dataDir = "caseStudy2/"
+resultsDir = 'caseStudy2_Fits/'
+subjnam = "Subj3"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
 
-# origModel = model
 
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
-
-#modelList = c("DDM", "DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
-#             "cDDMSvSzSt", "cfkDDMSvSzSt", "cDDMSvSt", "cfkDDMSvSt",
-#            "uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
-
-#modelList = c("DDM","UGMSt","DDMSv","DDMSvSz","UGMSv", "DDMSvSt","UGMSvSt","bUGMSvSt",
-#           "bUGMSvSb","DDMSvSzSt","UGM","bUGMSv","bUGMSvSbSt")
- 
-# modelList = c("bUGMSvSb","cDDMSvSzSt","cfkDDMSvSzSt","uDDMSvSb","bUGMSvSt")
-
-#modelList = c('DDM','UGM','DDMSv','uDDMSv','DDMSvSz','uDDMSvSb',
- #             'UGMSv','bUGMSv','bUGMSvSb','cDDMSv', 'cDDMSvSz',
-  #            'cfkDDMSvSz','cfkDDMSv')
-modelList = c('DDMSv','UGMSv','bUGMSv','uDDMSv','cDDMSv')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
