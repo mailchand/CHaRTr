@@ -5,9 +5,6 @@
 # nmc  -- number of simulated trials
 # model 
 
-
-
-source("simulators.r")
 source("chartr-helperfunctions.r")
 
 # Organize 4 rows, provide proper margins
@@ -46,14 +43,6 @@ currParams = fP$fakeParams
 currParams["aU"] = 0.09
 R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
 
-model = "cUGMSvSt"
-fP = paramsandlims(model,nCoh, fakePars = TRUE)
-currParams = fP$fakeParams
-currParams["v5"] = 19;
-currParams["aU"] = 1.52;
-currParams["aprime"] = 0.49;
-nmc = 50000;
-R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
 
 mtext('Probability Correct', side=1, outer=TRUE, line = -5, cex=1.5)
 mtext('Reaction time (s)', side=2, outer=TRUE, line = -4, cex=1.5)

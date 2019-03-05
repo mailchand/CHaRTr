@@ -1,53 +1,56 @@
-# diffusion model - compare fixed and collapsing bounds #
-# load C functions
-
 dyn.load("chartr-modelspec.so")
 
-# convert into a table object for the future so that life is a bit easier
 # 24 models 
+#' Generate a list of models to be used for fitting RTs and Choice
+#'
+#' @return A list of models
+#' @examples
+#' modelList = returnListOfModels()
 returnListOfModels = function()
 {
   modelList = c(
-    "DDM",                     # -1
-    "DDMSv",                   # -2
-    "DDMSvSt",                 # -3
-    "dDDMSvSt",                # -4
-    "DDMSvSzSt",               # -5
-    "DDMSvSz",                 # -6
-    "cDDMSvSt",                # -7
-    "dDDMSv",                  # -8
-    "cfkDDMSvSt",              # -9
-    "dDDMSvSzSt",              # -10
-    "cfkDDMSvSzSt",            # -11
-    "cDDMSvSzSt",              # -12
-    "UGM",                     #  1
-    "UGMSt",                   #  2 
-    "UGMSv",                   #  3
-    "UGMSvSt",                 #  4  
-    "bUGMSv",                  #  5       
-    "bUGMSvSt",                #  6       
-    "bUGMSvSb",                #  7       
-    "bUGMSvSbSt",              #  8
-    "uDDMSvSb",                #  9 // A simple urgency model that has no time constant or low pass filtering
-    "uDDMSv",                  #  10
-    "uDDMSvSbSt",              #  11 
-    "uDDMSvSt"                 #  12
+            "DDM",                     # -1
+            "DDMSv",                   # -2
+            "DDMSvSt",                 # -3
+            "dDDMSvSt",                # -4
+            "DDMSvSzSt",               # -5
+            "DDMSvSz",                 # -6
+            "cDDMSvSt",                # -7
+            "dDDMSv",                  # -8
+            "cfkDDMSvSt",              # -9
+            "dDDMSvSzSt",              # -10
+            "cfkDDMSvSzSt",            # -11
+            "cDDMSvSzSt",              # -12
+            "UGM",                     #  1
+            "UGMSt",                   #  2 
+            "UGMSv",                   #  3
+            "UGMSvSt",                 #  4  
+            "bUGMSv",                  #  5       
+            "bUGMSvSt",                #  6       
+            "bUGMSvSb",                #  7       
+            "bUGMSvSbSt",              #  8
+            "uDDMSvSb",                #  9 
+            "uDDMSv",                  #  10
+            "uDDMSvSbSt",              #  11 
+            "uDDMSvSt"                 #  12
   );
-
-  #"cDDMSv",                  # -15
-  #"cDDMSvSz",                # -16
-  #"cfkDDMSv",                # -17
-  #"cfkDDMSvSz",              # -18
-  #"cUGMSvSt"                #  13    
-  
   modelIds = c(seq(-1,-12), seq(1,12));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
 }
 
+
+#' printModels
+#'
+#' @return prints models
+#' @export 
+#'
+#' @examples
+#' printModels()
 printModels = function()
 {
+  
   allValidModels = returnListOfModels()
   modelList = unname(allValidModels$modelNames);
   modelList = sort(modelList, decreasing=TRUE)
@@ -89,7 +92,19 @@ printModels = function()
 
 
 
-# Generates the parameters and 
+
+#' paramsandlims
+#'
+#' @param model -- name of the model that is typically generated using list of models
+#' @param nds   -- Number of stimulus levels used for decision-making
+#' @param fakePars -- Generate fakeparameters for simulations
+#' @param nstart  -- Sometimes there is a true zero sensory evidence stimulus
+#'
+#' @return list with fields parnames, upper limits, lower limits, variable of whether it is a UGM class of models or DDM class of models, and fakeparams if generated.
+#' @export
+#'
+#' @examples
+#' paramsandlims(model='DDM',nds=7,fakePars=FALSE,nstart=1)
 paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 {
   # Non UGMs will have values less than 0
@@ -337,13 +352,51 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 }
 # End the list of parameters for the models
 
+
+
+
+
+#' Title
+#'
+#' @param v drift rates
+#' @param eta Standard deviation for the drift rate
+#' @param aU upper bound
+#' @param aL lower bound
+#' @param Ter Non decision time
+#' @param intercept Intercept for the UGM
+#' @param ieta range of the uniform distribution for the UGM intercept
+#' @param st0 range of the uniform distribution for the reaction times
+#' @param z Startpoint of the UGM.
+#' @param zmin min range of start point
+#' @param zmax max range of start point
+#' @param nmc number of trials to run
+#' @param dt timestep: .001 s for DDM, 1 ms for UGM
+#' @param stoch.s a constant
+#' @param maxTimeStep - maximum number of timesteps for the simulation
+#' @param fitUGM - whether it is a UGM or not and what the modelID is used for back identifying model name. This modifies the timesteps
+#' @param timecons- Used only for fixed UGMs
+#' @param usign - a constant typically 1 which tells you how the urgency signal grows
+#' @param timecons_var 
+#' @param usign_var 
+#' @param sx - Parameter for the Ditterich urgency function
+#' @param sy - Parameter for the Ditterich urgency function
+#' @param delay - Delay parameter for the Ditterich urgency function
+#' @param lambda - Parameter for the collapsing bounds
+#' @param aprime - Parameter for the collapsing bounds
+#' @param k - Parameter for the collapsing bounds
+#' @param VERBOSE 
+#'
+#' @return list with rts and responses
+#' @export
+#'
+#' @examples
+#' diffusionC(v=0.4, eta=0.05, aU=0.1,aL=0, Ter=0.3,z=0.05,nmc=1000,dt=0.001,stoch.s=0.1,maxTimeStep=4,fitUGM=-12)
 diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,stoch.s,
                     maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, 
-                    sx=sx, sy=sy, delay=delay,
-                    lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE) 
-  # v - drift rates
-  # eta - Standard deviation for the drift rate
-  # aU - upper bound, aL, lower bound
+                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE) 
+  # v - 
+  # eta - 
+  # aU - 
   # intercept - intercept for the urgency signal
   # ieta - variability for the intercept
   # st0 - variability in non decision-time
@@ -654,5 +707,143 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
        zmax = zmax, timecons_var = timecons_var, usign_var = usign_var,
        sx=sx, sy=sy, delay=delay, k=k, aprime = aprime, lambda = lambda)  
   #,contp=contp,timecons=timecons,usign=usign)
+}
+
+
+# 
+#
+#
+# 
+simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabels = FALSE, plotData=TRUE){
+  # model specifies the model to simulate
+  # ps passes in parameters
+  # nmc and maxiter are parameters for the simulation
+  
+  bailouttime=5
+  trlsteps=seq(0,bailouttime,.001)
+  maxTimeStep=as.double(length(trlsteps))
+  
+  
+  lwds=2.5
+  ptcexs=1.4
+  axcexs=.9
+  labcexs=1.1
+  
+  Ter = ps["Ter"]
+  st0 = ps["st0"]
+  eta = ps["eta"]
+  aU = ps["aU"]
+  
+  qps=seq(.1,.9,.1) ; 
+  nq=length(qps)
+  
+  dNameRows = c("cor", "err");
+  dNameCols = seq(1,nds,1);
+  
+  predps=array(dim=c(nds),dimnames=list(NULL))
+  predrts=array(dim=c(nq,2,nds),dimnames=list(qps,c("cor","err"),NULL))
+  counts = array(dim=c(2,nds), dimnames=list(dNameRows, dNameCols));
+  pb = array(data=NA, dim = c(10,2,nds), dimnames=list(1:10, dNameRows, dNameCols))
+  
+  
+  actualParams = paramsandlims(model, nds)
+  fitUGM = unname(actualParams$fitUGM)
+  lowers = actualParams$lowers
+  uppers = actualParams$uppers
+  parnames = actualParams$parnames
+  
+  stepsize=ifelse(fitUGM < 0,.001,1)  # time step for diffusion process: .001s (DDM), 1ms (UGM)
+  stoch.s=ifelse(fitUGM < 0,.1,100)   # diffusion constant
+  timecons=ifelse(fitUGM < 0,0,100)   # time constant for low pass filter
+  usign=ifelse(fitUGM < 0,0,1)
+  
+  if(fitUGM < 0) {
+    aL=0 ; z=ps["aU"]/2
+    dt=.001 ; stoch.s=.1 ; usign=0 ; timecons=0
+  } else {
+    aL=-ps["aU"] ; 
+    z=0
+    dt=1 ; 
+    stoch.s=100; 
+    usign=1; 
+    timecons=100
+    
+  }
+  graycol=rgb(red=80,green=80,blue=80,alpha=180,maxColorValue=255)
+  graylinecol =rgb(red=20,green=20,blue=20,alpha=180,maxColorValue=255)
+  
+  
+  # predictions for fitted parameters
+  backcol=rgb(red=220,green=220,blue=220,alpha=180,maxColorValue=255)
+  
+  if(plotData)
+  { 
+    par(pty="s")
+    plot(y=NULL,x=NULL,ylim=c(0.2,0.9),
+         xlim=c(0,1),ylab="",xlab="",axes=F)
+    xaxs=seq(0,1,.2) ; xaxs[xaxs<1]=gsub("0.",".",xaxs[xaxs<1])
+    
+    axis(side=1,at=xaxs,NA,tcl=-.4, labels=NULL, pos=0.25, cex.axis=1.6)
+    
+    if(showAxisLabels){
+      mtext("Reaction time (sec)", side=2, line=3 , cex=1.5)
+      mtext("Probability Correct ", side=1, line=3 , cex=1.5)
+    }
+  }
+  
+  for(v in 1:nds) {
+    rts <- resps <- numeric(nmc)
+    
+    tmp = diffusionC(v=ps[v], eta=ps["eta"], aU = ps["aU"], aL = aL, Ter=ps["Ter"], 
+                     intercept=ps["intercept"], ieta=ps["ieta"], st0 = ps["st0"], z=z, zmin=ps["zmin"],
+                     zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], 
+                     sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
+                     aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
+                     n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM)
+    
+    
+    # Now count the number of good and bad numbers
+    counts["cor",v] = sum(tmp$resp==1)
+    counts["err",v] = sum(tmp$resp==2)
+    
+    predps[v]=(table(tmp$resp)/nmc)["1"]
+    predrts[,"cor",v]=quantile(tmp$rt[tmp$resp==1],probs=qps)
+    predrts[,"err",v]=quantile(tmp$rt[tmp$resp==2],probs=qps)
+    
+    pb[1:10,1,v] = counts[1,v]/10; # Divide by 10 because you have quantiles :)!
+    pb[1:10,2,v] = counts[2,v]/10;
+    
+  }
+  # If you want the data plotted on the 
+  if(plotData)
+  {
+    for(i in seq(1,nq,2)) {
+      y=c(rev(predrts[i,"err",]),predrts[i,"cor",])
+      x=c(rev(1-predps),predps)
+      
+      points(y=y,x=x,pch=21,col=graylinecol,bg=backcol, cex=ptcexs*2,type="b",
+             lwd=lwds*1.2)
+      
+      # text(0.5, 0.96*predrts[i,"err",1], qps[i]*100,col=graycol)
+    }
+    
+    yaxs=seq(.3,max(c(round(1.25*max(predrts),digits=1),0.9)),.2)
+    text(0.15, yaxs[length(yaxs)]-0.04, model,cex=1.5, pos=4)
+    axis(side=2,at=yaxs,NA,tcl=-.4, labels=NULL, las=1, cex.axis=1.6)
+  }
+  list(q=predrts, p=predps, n=counts, pb = pb)
+}
+
+plotData = function(dat, ExistingPlot=FALSE) {
+  qps=seq(.1,.9,.2) ; nq=length(qps)
+  dat$q=dat$q[as.character(qps),,]
+  if(!ExistingPlot)
+  {
+    plot(y=NULL,x=NULL,ylim=range(dat$q),xlim=c(0,1),ylab="",xlab="", frame.plot = FALSE )
+    yaxs=seq(.3,round(1.2*max(dat$q),digits=1),.2)
+  }
+  points(x=rep(dat$p,each=nrow(dat$q)),y=dat$q[,"cor",],pch=4,col="green3",lwd=2)
+  use=(1-dat$p)>.01   # only plot if more than 2% corrects
+  points(x=rep(1-dat$p[use],each=nrow(dat$q[,,use])),y=dat$q[,"err",use],pch=4,col="red2",lwd=2)
 }
 
