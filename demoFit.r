@@ -1,39 +1,47 @@
 # Remove variables
 rm(list=ls())
 
-# Add some functions
+# Add some helper functions
 source("chartr-FitRoutines.r")
-source("diffusion-EAM-UGM.r")
+source("chartr-HelperFunctions.r")
 
-# Which job number to run
+# Which job number to run, this tells you the run number
 jobnum=1
 set.seed(jobnum)
 fnam = letters[jobnum];
 
 # source the fitting code files
-dirs="Example2"  # directory name of data files to fit
+dirs="caseStudy2"  # directory name of data files to fit
+resultDir = "caseStudy2_Fits/"
+
 subjs=dir(dirs); 
 nsubj=length(subjs) 
 listOfSubjects = subjs;
 
+
+
 # Setup some baseline parameters
 contp = list(p=0)  # if estcontp==FALSE, give proportion of contaminant responses
 maxits = 750  # number of iterations of DEoptim to run
-nparticles = 200  # number of particles/chains for DEoptim
-nmc  =10000  # number of MC samples for simulating the models at each iteration
+nparticles = 400  # number of particles/chains for DEoptim
+nmc =10000  # number of MC samples for simulating the models at each iteration
 estcontp=FALSE  # estimate contaminant mixture probability from data. usually set to false
+
+
 bailouttime=4  # time after which to bail out of diffusion sims, in seconds
-maxiter=as.double(length(seq(0,bailouttime,.001)))   # max iterations for fitting routine, then bail out
+maxTimeStep=as.double(length(seq(0,bailouttime,.001)))   # max iterations for fitting routine, then bail out
 pred=F  # generate model predictions from fitting routine (only use this once you have estimtated parameters from data using DEoptim)
 
 nreps = 5;
 gub=4
 
+
+
 subjnam="Subj1"
 
 load(paste(dirs,"/",subjnam,sep=""))
-model= "stoneEtaUrgency"
-saveFileName=paste("Example2_Fits/",subjnam,"-",model,"-",fnam,sep="")
+model= "DDM"
+saveFileName=paste(resultDir,subjnam,"-",model,"-",fnam,sep="")
 
 # for simple switching in fitting routine
 qps=as.numeric(dimnames(dat$q)[[1]])
@@ -76,12 +84,12 @@ system.time({
     timecons=timecons,
     usign=usign,
     parnames=parnames,
-    maxiter=maxiter,
+    maxTimeStep=maxTimeStep,
     control=DEoptim.control(itermax=maxits,NP=nparticles,trace=TRUE,
                             parallelType=1,reltol=1e-6,steptol=200,
                             # load objects used for fitting, for parallelType==1
                             parVar=list("dat","lowers","uppers","nmc","contp","ncohs", "fitUGM","pred",
-                                        "qps", "stepsize","stoch.s","timecons","usign","parnames","maxiter","maxits","nparticles","gub",
+                                        "qps", "stepsize","stoch.s","timecons","usign","parnames","maxTimeStep","maxits","nparticles","gub",
                                         "diffusionC","makeparamlist","contaminantmixresps","qmpouts","getpreds","obj","returnListOfModels")
                             # same again, but for functions
     ))})
