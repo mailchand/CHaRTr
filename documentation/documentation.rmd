@@ -1,0 +1,167 @@
+---
+title: "ModelTypes"
+author: "Chand, Guy"
+date: "February 5, 2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.align="center") 
+```
+
+
+```{r, echo = F}
+library(knitr)
+if(is_latex_output()) {
+  plot_default <- knit_hooks$get("plot")
+  knit_hooks$set(plot = function(x, options) { 
+    x <- c("\\vspace{25pt}", plot_default(x, options), "\\vspace{25pt}")
+  })
+}
+```
+
+## Stone Model
+
+$$
+x(t+1) = x(t) + v \times dt + \sqrt(dt) \times s \times N(0,1)
+$$
+Where $x$ is the decision variable, $v$ is the drift rate, $dt$ is the step size, $s$ is the standard deviation of the noise, $N(0,1)$ denotes the normal distribution.
+
+A correct response is made when $x(t+1) > a_{upper}$ and an incorrect response when $x(t+1) < a_{lower}$. The decision time is identified  at time $t$.  The total reaction time is estimated as a sum of the decision time and a non decision time that is also estimated from the RTs. The non decision time is thought to reflect processes such as stimulus encoding and motor initation time.
+
+## Results from the stone model
+
+``` {r, echo=FALSE, fig.width=6, fig.height=6}
+# Simulate a set of trajectories from the stone model
+source('../simulators.r')
+source('../diffusion-EAM-UGM.r')
+nCoh = 5
+nmc = 10000;
+model = "stone"
+fP = paramsandlims(model,nCoh, fakePars = TRUE)
+currParams = fP$fakeParams
+R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
+title(
+   xlab="Response Probability", ylab="RT (ms)") 
+```
+
+## Stone UGM model
+
+In the Urgency "gating"" model that Cisek and collaborators have proposed, there is no integration of evidence instead the input evidence is low pass filtered and then multiplied by an urgency term that increases with time. Note, without a low pass filter, multiplication of instantaneous evidence by the urgency signal would lead to excessive noise especially in the later time points. So Cisek and collaborators argue that the sensory evidence is low pass filtered (time constants of either 100 or 200 ms are used).
+
+Implementation of this uses the exponential smoothing average approach that can be used for discrete smoothers.
+
+$x_0$ is the initial evidence for each choice which is also the baseline state of the process. Again assume input drift rate is $v$ and there is additive noise which again is appropriately scaled. Then the pair of governing equations for the UGM model are as follows. The current evidence that is used for making a decision is a weighted sum of past evidence with the present evidence.
+
+$$
+\begin{aligned}
+\alpha & =  \frac{\tau}{\tau + dt} \\
+E(t)  & =  \alpha\times E(t-1) + (1-\alpha) (v\times dt + \sqrt dt \times s \times N(0,1))
+\end{aligned}
+$$
+When alpha is zero, there is no filtering, however when alpha is 100 ms (and dt is 1 ms), then the previous evidence is weighted by 0.99 and the new evidence by 0.01.
+
+The current decision variable at time t is now given as 
+
+$$ 
+\begin{aligned}
+u(t) & = (intercept + \beta t) \\
+x(t) & = E(t) \times u(t)
+\end{aligned}
+$$
+In classical models the intercept is set to be zero and beta to be 1. 
+
+## Stone Urgency Model 
+
+The philosophy of the stone urgency model contains elements of the urgency gating model and the classical stone model except that there is no low pass filtering of the input evidence. Instead, the input evidence is multiplied by the urgency signal and then accumulated over time.
+
+
+$$ 
+\begin{aligned}
+E(t) & = (v\times dt + \sqrt dt \times s \times N(0,1)) \\
+x(t) & = x(t-1) + E(t) \times u(t)
+\end{aligned}
+$$
+Both the input stimulus and the noise are multiplied by the urgency signal which can take on many forms. An elegant 3 parameter form with two scaling factors ($s_x$, $s_y$) and a delay ($d$) was proposed by Jochen Ditterich (2006).
+
+$$
+\begin{aligned}
+a_lower(t) & = & ( 1 - exp(-\frac{t}{\lambda})^k)(\frac{a}{2}-a')
+\end{aligned}
+$$
+```{r , echo=FALSE}
+t = seq(0,1,0.001)
+aU = 0.08;
+aprime = 0.75
+k=3;
+lambda=0.9
+u = (1 - exp(-(t/lambda)^k))*(aU/2.0-aprime)
+l = aU - u;
+plot(t,u,type="l", xlab="time (s)", ylab="Urgency function",frame.plot = FALSE, las=1)
+
+```
+
+
+$$
+\begin{aligned}
+S_1(t) & = exp(s_x (t-d) ); \\
+S_2(t) & = exp(-s_x d); \\
+gamma(t) & = \frac{s_y S_1(t)}{1+S_1(t)} + \frac{1 + (1-s_y)S_2(t)}{1+S_2(t)}
+\end{aligned}
+$$
+```{r , echo=FALSE}
+# Example of an urgency function estimated using the actual fits to Monkey O's data
+# Note the smooth increase in urgency as time elapses.
+t = seq(0,1,0.001)
+delay = 0.05;
+sx = 22.02;
+sy = 9.02;
+t1 = exp(sx*(t-delay));
+t2 = exp(-sx*delay);
+u = (sy*t1)/(1 + t1) + (1 + (1-sy)*t2)/(1+t2);
+plot(t,u,type="l", xlab="time (s)", ylab="Urgency function",frame.plot = FALSE, las=1)
+```
+
+
+```{r , echo=FALSE}
+# Example of an urgency function estimated using the actual fits to Monkey O's data
+# Note the smooth increase in urgency as time elapses.
+t = seq(0,1,0.001)
+lambda = .35;
+k=3;
+aprime=0.01;
+aU = 0.2
+l = (1 -exp(-(t/lambda)^k))*(aU)*(.5-aprime)
+u = aU - l;
+library(ggplot2)
+
+df = data.frame(x=t,y1=l,y2=u);
+p1 = ggplot(data=df, aes(x=x,y=y1)) + geom_line();
+
+```
+
+
+## Models of Decision Making
+
+## List of available models
+
+| Model                 | Description         | Name in model list   | Uses C Function Name | Involves Urgency |
+|----------------------:| ------------------- | -------------------- | -------------------- | ---|
+| stone | Vanilla drift diffusion model for decision-making originally developed by stone (1960) | stone | stone | No |
+| stoneEta | Drift diffusion model with variability in the drift rates. Drift rate variability is drawn from a normal distribution. | stoneEta | stonenEta| No |
+| stoneEtaVarTer | Drift Diffusion Model with variability in the drift rates and variability in the residual time that is thought to reflect sensory and motor processing delays | stoneEtaVarTer | stoneEta  | No| 
+| stoneEtaVarBaseVarTer |  Drift Diffusion Model with variability in the drift rates, variability in the baseline state before evidence comes in and variability in the residual time that is thought to reflect sensory and motor processing delays| stoneEtaVarBaseVarTer | stoneEtaVarBase | No |     
+| ratcliff | Ratcliff model that involves variability in the baseline starting point and in the drift rate | ratcliff | ratcliff | No |   | ratcliffVarTer | Ratcliff model that involves variability in the baseline starting point and in the drift rate. The model also includes variability in residual time | ratcliff | ratcliff | No |     
+| stoneEtaDitterich | 
+
+### Using this toolbox. 
+
+This toolbox is an attempt by us (Chand and Guy) to provide the legions of researchers interested in various models of decision-making a simple and easily used toolbox for analysis of RT and discrimination accuracy behavior in decision-making tasks. The architecture of the toolbox is very simple. The choosing of which model to run and the lower and upper parameters and the 
+
+We assume that there is a reasonable working knowledge of R and C. 
+
+![](Flowchart.png)

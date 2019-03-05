@@ -1,0 +1,46 @@
+---
+title: "Equations For the Models"
+author: "Chand, Guy"
+date: "2/5/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Stone Model
+
+$$
+x(t+1) = x(t) + v \times dt + \sqrt(dt) \times s \times N(0,1)
+$$
+Where $x$ is the decision variable, $v$ is the drift rate, $dt$ is the step size, $s$ is the standard deviation of the noise, $N(0,1)$ denotes the normal distribution. The RTs for this model do not include any variability and just involve addition of a residual movement time $T_{er}$
+
+## StoneEta
+
+$$
+x(t+1) = x(t) + v_{sample} \times dt + \sqrt(dt) \times s \times N(0,1)
+$$
+
+$$
+v_{sample} \sim N(v, \eta)
+$$
+Where $v_{sample}$ is drawn from each trial from a normal distribution with mean $v$ and a standard deviation $\eta$. 
+
+## StoneEtaVarTer
+
+Is the same formulation as the stoneEta model except it also includes variability in the non decision time.
+$$
+x(t+1) = x(t) + v_{sample} \times dt + \sqrt(dt) \times s \times N(0,1)
+$$
+
+$$
+v_{sample} \sim N(v, \eta)
+$$
+Conventionally, variability in the non decision time
+
+
+
+

@@ -1,0 +1,34 @@
+---
+title: "Demonstration Models"
+author: "Chand, Guy"
+date: "February 12, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE}
+source("simulators.r")
+source("diffusion-EAM-UGM.r")
+nCoh = 7
+nmc = 10000;
+model = "ratcliff"
+fP = paramsandlims(model,nCoh, fakePars = TRUE)
+currParams = fP$fakeParams
+currParams["zmin"] = 0.9*currParams["aU"]/2;
+currParams["zmax"] = 1.1*currParams["aU"]/2;
+R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
+```
+```{r, echo=FALSE}
+model = "stoneEtaUrgency"
+fP = paramsandlims(model,nCoh, fakePars = TRUE)
+currParams = fP$fakeParams
+currParams["aU"] = 20000;
+currParams["intercept"] = 3;
+currParams["ieta"] = 8;
+currParams["usign_var"] = 0.137;
+R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
+```

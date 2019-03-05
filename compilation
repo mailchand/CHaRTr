@@ -1,0 +1,9 @@
+gcc -fPIC -I/usr/share/R/include/ -shared -o ugm-diffusion.so ugm-diffusion.c
+
+
+on a mac use:
+
+R CMD SHLIB ugm-diffusion.c
+
+Might work on all OSes. Need to confirm that it actually works on linux as well :)
+

@@ -1,0 +1,746 @@
+dir()
+setwd("data/PHS2005/")
+dir()
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+rawdat<-dat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  rawdat[[i]]=x#
+  # also create version with trimmed data - bad trials removed#
+  dat[[i]]=x[x$goodtrial==1,]#
+}#
+names(rawdat)=nams ; names(dat)=nams
+ls()
+rawdat
+length(rawdat)
+jobnum
+jobnum=1
+x=dat[[jobnum]][,c("stimulus_value","correct","rt")] ; fitname=names(dat)[jobnum]#
+dimnames(x)[[2]][1]="coherence"#
+x=x[order(x$coherence),]#
+length0=nrow(x[x$coherence==0,])#
+sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+x[x$coherence==0,"correct"][!sampCors]=0#
+levelsCoh=sort(unique(x$coherence))
+x
+x[x$correct==1,"rt"]
+x[x$correct==1 & x$coherence==0,"rt"]
+x[x$correct==0 & x$coherence==0,"rt"]
+mean(x[x$correct==0 & x$coherence==0,"rt"])
+mean(x[x$correct==1 & x$coherence==0,"rt"])
+names(rawdat)
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[1,1]
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[3,1]
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[4,1]
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[5,1]
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[5,2]
+x$rt
+  x$rt=x$rt/1000
+x$rt
+x$rt=x$rt*1000
+x$rt
+x$correct
+table(x$correct,x$coherence)
+apply(table(x$correct,x$coherence),2,function(m) m/sum(m))
+85/92
+47/46
+47/(46+47)
+apply(table(x$correct,x$coherence),2,function(m) m/sum(m))
+apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,]
+class(apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,])
+apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,]
+table(x$correct,x$coherence)
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))[4,1]
+unlist(tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2))))
+names(rawdat)
+names(rawdat)[jobnum]
+tapply(x$rt,list(x$coherence,x$correct),function(y) quantile(y,probs=seq(.1,.9,.2)))
+qs
+  qs=tapply(x$rt,list(x$coherence,x$correct),function(y) #
+        quantile(y,probs=seq(.1,.9,.2)))
+qs
+ls()
+levelsCoh
+coh
+coh=1
+qps=seq(.1,.9,.1)
+  qs=tapply(x$rt,list(x$coherence,x$correct),function(y) #
+        quantile(y,probs=qps))
+qps
+qs
+  x$correct==0
+  x$correct==0=2
+x$correct[x$correct==0]=2
+x$correct
+  qs=tapply(x$rt,list(x$coherence,x$correct),function(y) #
+        quantile(y,probs=qps))
+qs
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))
+q
+corerr=1
+coh=1
+is.null(qs[corerr,coh])
+qs[corerr,coh]
+  qs=tapply(x$rt,list(x$coherence,x$correct),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {}#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=0#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh]#
+   	}  	#
+  }
+  qs=tapply(x$rt,list(x$coherence,x$correct),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=0#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh]#
+   	}  	#
+  }
+corerr
+cog
+coh
+qs
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))
+qs
+is.null(qs[corerr,coh])
+qs
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=0#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh]#
+   	}  	#
+  }
+corerr
+cog
+coh
+qs
+levelsCof
+levelsCoh
+q[,corerr,coh]
+q
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))
+q
+coh=1
+for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=0#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh]#
+   	}  	#
+  }
+corerr
+coh
+q
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh]#
+   	}  	#
+  }
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))
+qs
+q
+coh=1
+corerr=1
+q[,corerr,coh]
+rep(0,length(qps))
+q[,corerr,coh]
+qs[corerr,coh]
+coh=2
+q[,corerr,coh]
+rep(0,length(qps))
+q[,corerr,coh]
+qs[corerr,coh]
+qs[corerr,coh][[1]]
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }
+q
+qs
+q
+qs
+qs[corerr,coh]
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }
+qs
+q
+  dat$q=q
+dat
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+rawdat<-dat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  # also create version with trimmed data - bad trials removed#
+  alldat[[i]]=x[x$goodtrial==1,]#
+}#
+names(alldat)=nams
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+alldat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  # also create version with trimmed data - bad trials removed#
+  alldat[[i]]=x[x$goodtrial==1,]#
+}#
+names(alldat)=nams
+jobnum=1
+  x=alldat[[jobnum]][,c("stimulus_value","correct","rt")]#
+  fitname=names(alldat)[jobnum]#
+  dimnames(x)[[2]][1]="coherence"#
+  x=x[order(x$coherence),]#
+  length0=nrow(x[x$coherence==0,])#
+  sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+  x[x$coherence==0,"correct"][!sampCors]=0#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q
+dat
+array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*c(.1,.2,.2,.2,.2,.1)
+qps
+diff(c(0,qps,1))
+length(diff(c(0,qps,1)))
+diff(c(0,qps,1))
+length(diff(c(0,qps,1)))
+array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))
+dat
+  dimnames(dat$n)[[1]]=c("err","cor")
+dat
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))
+dat
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]
+dat
+  x=alldat[[jobnum]][,c("stimulus_value","correct","rt")]#
+  fitname=names(alldat)[jobnum]#
+  dimnames(x)[[2]][1]="coherence"#
+  x=x[order(x$coherence),]#
+  length0=nrow(x[x$coherence==0,])#
+  sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+  x[x$coherence==0,"correct"][!sampCors]=0#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))
+dat$n
+dat$p
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q
+dat
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))
+dat$pb
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]
+dat$pb
+fitname
+  rm(dat,q,qs)
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+alldat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  # also create version with trimmed data - bad trials removed#
+  alldat[[i]]=x[x$goodtrial==1,]#
+}#
+names(alldat)=nams
+for(jobnum 1:length(rawdat)) {#
+  x=alldat[[jobnum]][,c("stimulus_value","correct","rt")]#
+  fitname=names(alldat)[jobnum]#
+  dimnames(x)[[2]][1]="coherence"#
+  x=x[order(x$coherence),]#
+  length0=nrow(x[x$coherence==0,])#
+  sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+  x[x$coherence==0,"correct"][!sampCors]=0#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]#
+  save(dat,file=fitname)#
+  rm(dat,q,qs)#
+}
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+alldat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  # also create version with trimmed data - bad trials removed#
+  alldat[[i]]=x[x$goodtrial==1,]#
+}#
+names(alldat)=nams
+for(jobnum in 1:length(rawdat)) {#
+  x=alldat[[jobnum]][,c("stimulus_value","correct","rt")]#
+  fitname=names(alldat)[jobnum]#
+  dimnames(x)[[2]][1]="coherence"#
+  x=x[order(x$coherence),]#
+  length0=nrow(x[x$coherence==0,])#
+  sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+  x[x$coherence==0,"correct"][!sampCors]=0#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]#
+  save(dat,file=fitname)#
+  rm(dat,q,qs)#
+}
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+fnams=dir(pattern="^e9")#
+colnames=c('session#','side','condition','side','seed','warn_time','trial_num','fixlocX','fixlocY','rawfixlocX','rawfixlocY','saclocX','saclocY','correct','rt','trialclass_offline','trialabort_online','trialinterrupt_online','trialreject_offline','goodtrial','IVAR1_INDEX','IVAR1_VALUE','stimulus_index','stimulus_value','feedback')#
+#
+alldat<-list() ; nams=unlist(lapply(strsplit(fnams,"\\."), function(x) x[1]))#
+#
+for(i in 1:length(fnams)) {#
+  x=read.delim(fnams[i],header=FALSE)#
+  dimnames(x)[[2]]=colnames#
+  # also create version with trimmed data - bad trials removed#
+  alldat[[i]]=x[x$goodtrial==1,]#
+}#
+names(alldat)=nams#
+#
+for(jobnum in 1:length(alldat)) {#
+  x=alldat[[jobnum]][,c("stimulus_value","correct","rt")]#
+  fitname=names(alldat)[jobnum]#
+  dimnames(x)[[2]][1]="coherence"#
+  x=x[order(x$coherence),]#
+  length0=nrow(x[x$coherence==0,])#
+  sampCors=sample(x=rep(c(T,F),length.out=length0),size=length0,replace=F)#
+  x[x$coherence==0,"correct"][!sampCors]=0#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]#
+  save(dat,file=fitname)#
+  rm(dat,q,qs)#
+}
+dir()
+setwd("../RS2002/")
+dir()
+#
+rawdat=data.frame(read.table("x.txt"))#
+f=scan("fnames.txt",what="a",quiet=TRUE)#
+#
+colnames(rawdat)=c("UNUM", # unit number#
+"SID" , # stim identifier#
+"COH" , # coherence#
+"DIR" , # direction of dots, 0 - zero coherence#
+"TRG" , # direction monkey chooses#
+"COR" , # correct, 50# of zero coherence considered correct, randomly#
+"TSTON" , # time of dots on#
+"TSAC" , # time of saccade#
+"RT" , # rt#
+"LAT" , # ?#
+"NOVAR" , # whether random seeded or pre-determined#
+"FLASH" , # ?#
+"SEED" , # seed#
+"T1X" , # target 1 x coor#
+"T1Y" ,  # target 1 y coor#
+"T2X" ,  # target 2 x coor#
+"T2Y" ,  # target 2 y coor#
+"FIXX" , # fixation x#
+"FIXY" ,  # fixation y#
+"STIMX" , # center of dots display x#
+"STIMY" ,  # center of dots display y#
+"VMAX","VAVG","OFFX","OFFY","BEGX","BEGY","ENDX","ENDY","TSTOFF", # time stim off#
+"TRIAL" ) # trial
+dir()
+rawdat=data.frame(read.table("x.txt"))
+f=scan("fnames.txt",what="a",quiet=TRUE)
+colnames(rawdat)=c("UNUM", # unit number#
+"SID" , # stim identifier#
+"COH" , # coherence#
+"DIR" , # direction of dots, 0 - zero coherence#
+"TRG" , # direction monkey chooses#
+"COR" , # correct, 50# of zero coherence considered correct, randomly#
+"TSTON" , # time of dots on#
+"TSAC" , # time of saccade#
+"RT" , # rt#
+"LAT" , # ?#
+"NOVAR" , # whether random seeded or pre-determined#
+"FLASH" , # ?#
+"SEED" , # seed#
+"T1X" , # target 1 x coor#
+"T1Y" ,  # target 1 y coor#
+"T2X" ,  # target 2 x coor#
+"T2Y" ,  # target 2 y coor#
+"FIXX" , # fixation x#
+"FIXY" ,  # fixation y#
+"STIMX" , # center of dots display x#
+"STIMY" ,  # center of dots display y#
+"VMAX","VAVG","OFFX","OFFY","BEGX","BEGY","ENDX","ENDY","TSTOFF", # time stim off#
+"TRIAL" ) # trial
+rawdat$monkey=substr(f,1,1)
+nams=unique(rawdat$monkey) ; nams=rev(nams)  # so monkey B before monkey N,
+nams
+alldat=list()#
+nams=unique(rawdat$monkey) ; nams=rev(nams)  # so monkey B before monkey N,
+for(i in 1:length(nams)) alldat[[i]]=rawdat[rawdat$monkey==nams[i],c("COH","COR","RT")]
+names(alldat)=nams
+jobnum=1
+  x=alldat[[jobnum]] ; dimnames(x)[[2]]=c("coherence","correct","rt")
+ fitname=names(alldat)[jobnum]
+fitname
+  x=x[x$rt>100,]
+  x=x[order(x$coherence),]#
+  levelsCoh=sort(unique(x$coherence))
+x
+table(x$correct,x$coherence)
+  x=x[x$rt>100,]#
+  x=x[order(x$coherence),]#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000
+x
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))
+dat
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)
+dat
+268/(268+168)
+  x$correct[x$correct==0]=2
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))
+qs
+qs[1,1][[1]]
+qs[2,1][[1]]
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q
+dat
+qs[1,5]
+qs[1,6]
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]
+dat
+apply(dat$pb,2:3,sum)
+dat$n
+### load Palmer, Huk & Shadlen (2005) data into R ####
+# files need to already be exported form matlab as plain text files#
+# create quantile for QMP fitting ##
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+rawdat=data.frame(read.table("x.txt"))#
+f=scan("fnames.txt",what="a",quiet=TRUE)#
+#
+colnames(rawdat)=c("UNUM", # unit number#
+"SID" , # stim identifier#
+"COH" , # coherence#
+"DIR" , # direction of dots, 0 - zero coherence#
+"TRG" , # direction monkey chooses#
+"COR" , # correct, 50# of zero coherence considered correct, randomly#
+"TSTON" , # time of dots on#
+"TSAC" , # time of saccade#
+"RT" , # rt#
+"LAT" , # ?#
+"NOVAR" , # whether random seeded or pre-determined#
+"FLASH" , # ?#
+"SEED" , # seed#
+"T1X" , # target 1 x coor#
+"T1Y" ,  # target 1 y coor#
+"T2X" ,  # target 2 x coor#
+"T2Y" ,  # target 2 y coor#
+"FIXX" , # fixation x#
+"FIXY" ,  # fixation y#
+"STIMX" , # center of dots display x#
+"STIMY" ,  # center of dots display y#
+"VMAX","VAVG","OFFX","OFFY","BEGX","BEGY","ENDX","ENDY","TSTOFF", # time stim off#
+"TRIAL" ) # trial ##
+#
+rawdat$monkey=substr(f,1,1)#
+alldat=list()#
+nams=unique(rawdat$monkey) ; nams=rev(nams)  # so monkey B before monkey N, like in Drugowitsch et al.'s table 1.#
+for(i in 1:length(nams)) alldat[[i]]=rawdat[rawdat$monkey==nams[i],c("COH","COR","RT")]#
+names(alldat)=nams#
+#
+for(jobnum in 1:length(nams)) {#
+  x=alldat[[jobnum]] ; dimnames(x)[[2]]=c("coherence","correct","rt")#
+  fitname=names(alldat)[jobnum]#
+  x=x[x$rt>100,]#
+  x=x[order(x$coherence),]#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]#
+  save(dat,file=fitname)#
+  rm(dat,q,qs)#
+}
+q()
+### load Palmer, Huk & Shadlen (2005) data into R ####
+# files need to already be exported form matlab as plain text files#
+# create quantile for QMP fitting ##
+rm(list=ls())#
+# define quantiles to use for fitting#
+qps=seq(.1,.9,.1)#
+#
+rawdat=data.frame(read.table("x.txt"))#
+f=scan("fnames.txt",what="a",quiet=TRUE)#
+#
+colnames(rawdat)=c("UNUM", # unit number#
+"SID" , # stim identifier#
+"COH" , # coherence#
+"DIR" , # direction of dots, 0 - zero coherence#
+"TRG" , # direction monkey chooses#
+"COR" , # correct, 50# of zero coherence considered correct, randomly#
+"TSTON" , # time of dots on#
+"TSAC" , # time of saccade#
+"RT" , # rt#
+"LAT" , # ?#
+"NOVAR" , # whether random seeded or pre-determined#
+"FLASH" , # ?#
+"SEED" , # seed#
+"T1X" , # target 1 x coor#
+"T1Y" ,  # target 1 y coor#
+"T2X" ,  # target 2 x coor#
+"T2Y" ,  # target 2 y coor#
+"FIXX" , # fixation x#
+"FIXY" ,  # fixation y#
+"STIMX" , # center of dots display x#
+"STIMY" ,  # center of dots display y#
+"VMAX","VAVG","OFFX","OFFY","BEGX","BEGY","ENDX","ENDY","TSTOFF", # time stim off#
+"TRIAL" ) # trial ##
+#
+rawdat$monkey=substr(f,1,1)#
+alldat=list()#
+nams=unique(rawdat$monkey) ; nams=rev(nams)  # so monkey B before monkey N, like in Drugowitsch et al.'s table 1.#
+for(i in 1:length(nams)) alldat[[i]]=rawdat[rawdat$monkey==nams[i],c("COH","COR","RT")]#
+names(alldat)=nams#
+setwd("../../dataToFit/RS2002/")#
+#
+for(jobnum in 1:length(nams)) {#
+  x=alldat[[jobnum]] ; dimnames(x)[[2]]=c("coherence","correct","rt")#
+  fitname=names(alldat)[jobnum]#
+  x=x[x$rt>100,]#
+  x=x[order(x$coherence),]#
+  levelsCoh=sort(unique(x$coherence))#
+  x$rt=x$rt/1000#
+  #
+  dat=list(p=apply(table(x$correct,x$coherence),2,function(m) m/sum(m))[2,],#
+           n=table(x$correct,x$coherence))#
+  dimnames(dat$n)=list(c("err","cor"),levelsCoh)#
+  x$correct[x$correct==0]=2  #
+  qs=tapply(x$rt,list(x$correct,x$coherence),function(y) #
+        quantile(y,probs=qps))       #
+  #
+  q=array(dim=c(length(qps),2,length(levelsCoh)),dimnames=list(qps,c("cor","err"),levelsCoh))#
+  for(coh in 1:length(levelsCoh)) for(corerr in 1:2) {#
+   	if(is.null(qs[corerr,coh][[1]])) {#
+   	  q[,corerr,coh]=rep(0,length(qps))#
+   	} else {#
+   	  q[,corerr,coh]=qs[corerr,coh][[1]]#
+   	}  	#
+  }#
+  dat$q=q ; dat$q[dat$q==0]=NA#
+  dat$pb=array(rep(dat$n,each=dim(dat$q)[1]+1),#
+      dim=c(dim(dat$q)[1]+1,dim(dat$q)[2:length(dim(dat$q))]),#
+      dimnames=c(list(NULL),dimnames(dat$n)))*diff(c(0,qps,1))#
+  dat$n=dat$n[c("cor","err"),] ; dat$pb=dat$pb[,c("cor","err"),]#
+  save(dat,file=fitname)#
+  rm(dat,q,qs)#
+}
+dat$q
+q()

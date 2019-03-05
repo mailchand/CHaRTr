@@ -1,0 +1,31 @@
+---
+title: "ModelTypes"
+author: "Chand, Guy"
+date: "February 5, 2018"
+output:  md_document
+variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Models of Decision Making
+
+## List of available models
+
+| Model                 | Description         | Name in model list   | Uses C Function Name | Involves Urgency |
+|----------------------:| ------------------- | -------------------- | -------------------- | ---|
+| stone | Vanilla drift diffusion model for decision-making originally developed by stone (1960) | stone | stone | No |
+| stoneEta | Drift diffusion model with variability in the drift rates. Drift rate variability is drawn from a normal distribution. | stoneEta | stoneEta| No |
+| stoneEtaVarTer | Drift Diffusion Model with variability in the drift rates and variability in the residual time that is thought to reflect sensory and motor processing delays | stoneEtaVarTer | stoneEta  | No| 
+| stoneEtaVarBaseVarTer |  Drift Diffusion Model with variability in the drift rates, variability in the baseline state before evidence comes in and variability in the residual time that is thought to reflect sensory and motor processing delays| stoneEtaVarBaseVarTer | stoneEtaVarBase | No |     
+| ratcliff | Ratcliff model that involves variability in the baseline starting point and in the drift rate | ratcliff | ratcliff | No |   | ratcliffVarTer | Ratcliff model that involves variability in the baseline starting point and in the drift rate. The model also includes variability in residual time | ratcliff | ratcliff | No |     
+| stoneEtaDitterich | 
+### Using this toolbox. 
+
+This toolbox is an attempt by us (Chand and Guy) to provide the legions of researchers interested in various models of decision-making a simple and easily used toolbox for analysis of RT and discrimination accuracy behavior in decision-making tasks. The architecture of the toolbox is very simple. The choosing of which model to run and the lower and upper parameters and the 
+
+We assume that there is a reasonable working knowledge of R and C. 
+
+

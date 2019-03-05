@@ -1,0 +1,4 @@
+clear
+getwd()
+source("multiModelAnalysis.r")
+source("multiModelAnalysis.r")
