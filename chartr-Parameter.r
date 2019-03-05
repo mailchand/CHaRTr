@@ -8,24 +8,24 @@
 #
 # CC, 5th March 2019 - Boston University, Boston, MA
 
+rm(list=ls())
 require(ggplot2)
 require(gridExtra)
 
 
+source("chartr-HelperFunctions.r")
+
 dataDir = "caseStudy1/"
 resultsDir = 'caseStudy1_Fits/'
 subjnam = "Subj1"
-model = "cDDMSvSt"
-
-
-rm(list=ls())
-source("chartr-HelperFunctions.r")
+modelToPlot = "cDDMSvSt"
 VERBOSE = TRUE;
 
 
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
+
 
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
@@ -36,13 +36,12 @@ nreps = 5;
 allRuns = letters[1:nreps];
 tempReObj = seq(1,length(allRuns))
 
-cat(sprintf("\n%15s: ", model))
+cat(sprintf("\n%15s: ", modelToPlot))
 
-# cat(paste("\n", "Model:", model,"\t"));
 for(m in seq(1,length(allRuns)))
 {    
   fnam = allRuns[m];
-  fileName = paste(resultsDir,subjnam,"-",model,"-",fnam,sep="") ;
+  fileName = paste(resultsDir,subjnam,"-",modelToPlot,"-",fnam,sep="") ;
   if(file.exists(fileName))
   {
     load(fileName)
