@@ -5,7 +5,7 @@
 # nmc  -- number of simulated trials
 # model 
 
-source("chartr-helperfunctions.r")
+source("chartr-HelperFunctions.r")
 
 # Organize 4 rows, provide proper margins
 par(mfrow = c(2,2), mar=c(6, 6, 1, 1))

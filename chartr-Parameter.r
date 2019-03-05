@@ -1,11 +1,28 @@
 # Plot parameters of these models
+#
+#   This file allows you to plot all the 
+#
+#
+#
+#
+#
+# CC, 5th March 2019 - Boston University, Boston, MA
+
+require(ggplot2)
+require(gridExtra)
+
+
+dataDir = "caseStudy1/"
+resultsDir = 'caseStudy1_Fits/'
+subjnam = "Subj1"
+model = "cDDMSvSt"
+
+
 rm(list=ls())
-source("chartr-helperfunctions.r")
+source("chartr-HelperFunctions.r")
 VERBOSE = TRUE;
 
-dataDir = "Example2/"
-resultsDir = 'Example2_NewFits/'
-subjnam = "Subj1"
+
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -13,13 +30,12 @@ N = sum(dat$n)
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 modelOutput=list()
+
 # load each model's output and store in modelOutput
 nreps = 5;
 allRuns = letters[1:nreps];
 tempReObj = seq(1,length(allRuns))
 
-
-model = "DDMSvSt"
 cat(sprintf("\n%15s: ", model))
 
 # cat(paste("\n", "Model:", model,"\t"));
@@ -37,8 +53,6 @@ for(m in seq(1,length(allRuns)))
       rownames(parFrame) = allRuns;
     }
     parFrame[fnam,] = c(out$pars, out$reobj);
-    
-
     # Finish selecting
   }
   else
@@ -48,17 +62,24 @@ for(m in seq(1,length(allRuns)))
 }
 
 
+# Now plot all the parameters associated with the five runs
 nParameters = length(out$pars);
-nRows = 2;
-nCols = ceiling(nParameters/nRows)
+nCols = 5;
+nRows = ceiling(nParameters/nCols)
 par(mfrow=c(nRows, nCols))
 parnames = colnames(parFrame)
+
+plots = list();
 for(m in seq(1,nParameters))
 {
-  barplot(parFrame[,parnames[m]], las=2, ylab = parnames[m])
-
+  S = data.frame(data = parFrame[,parnames[m]], runs=seq(1,5));
+  plots[[m]] = ggplot(S, aes(runs,data), stat="identity") + xlab('') + ylab('') + 
+    geom_col(alpha=0.6)  + coord_flip() + theme_minimal()+ ggtitle(parnames[m]) + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank()) + 
+  theme(axis.line.x = element_line(colour = "gray"),axis.ticks.x = element_line("gray", size=.25), axis.ticks.length = unit(.25,"cm")) + theme(text = element_text(size=14));
+  
 }  
 
+do.call("grid.arrange", c(plots, ncol=nCols))
 
 
 

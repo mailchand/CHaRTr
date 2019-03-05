@@ -13,7 +13,12 @@ source("modelSelection.r")
 dyn.load("chartr-modelspec.so")
 # load RS2002 data sets to find suitable subjects
 
-setwd("colgrid/")
+dataDir = "caseStudy1";
+resultsDir = "../caseStudy1_Fits"
+
+
+
+setwd(dataDir)
 RS2002 =  FALSE;
 
 
@@ -22,7 +27,7 @@ par(mfrow=c(1,2),mar=c(4,4,2,1))
 qps=seq(.1,.9,.2) ; nq=length(qps)
 fnams=dir()
 # fnams = fnams[c(1,2,3)]
-fnams = fnams[c(1,2)]
+fnams = fnams[c(1,3)]
 data=list()
 for(s in fnams) {
   load(s)
@@ -31,16 +36,18 @@ for(s in fnams) {
 }
 
 # 
-setwd("../colgrid_FinalFits/");
+setwd(resultsDir);
 
 
 
-# usemodel = c("DDM","DDMSvSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt","cDDMSvSt")
-usemodel = c("DDM", "DDMSvSzSt","cDDMSvSt");
-
-#usemodel = c("DDMSvSzSt","uDDMSvSb","bUGMSvSb","uDDMSvSt","bUGMSvSt")
+if(RS2002)
+ {
+  usemodel = c("DDMSvSzSt","uDDMSvSb","bUGMSvSb","uDDMSvSt","bUGMSvSt")
+}else
+{
+    usemodel = c("DDM","DDMSvSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt","cDDMSvSt")
+}
 #
-usemodel = c("DDMSv","bUGMSvSb","uDDMSvSb","cDDMSvSz")
 snams=names(data) ; 
 nsubj=length(data);
 nreps=5;
@@ -83,7 +90,7 @@ for(s in snams) {
     landpars[[mod]]=rbind(landpars[[mod]],out$pars)
     numpars[mod] = length(out$pars)
     Temp = calcIC(bestfit, numpars[mod], sum(data[[s]]$n))
-    landAIC[s,mod] = Temp$AIC;
+    landAIC[s,mod] = Temp$BIC;
     logLike[s,mod] = -2*out$reobj;
     
     rm(out)
