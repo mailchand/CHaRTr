@@ -5,11 +5,9 @@
 
 # Typically because there is randomness in the optimizer you end up using at least five runs of the model in order
 # to be sure your data are correct
-
-
 rm(list=ls())
 source("chartr-FitRoutines.r")
-source("chartr-helperfunctions.r")
+source("chartr-HelperFunctions.r")
 
 jobnum=1
 
@@ -17,14 +15,12 @@ set.seed(jobnum)
 fnam = letters[jobnum];
 
 # source the fitting code files
-
-dirs="Example4"  # directory name of data files to fit
+dirs="caseStudy2"  # directory name of data files to fit
 subjs=dir(dirs); 
 nsubj=length(subjs) 
 
 # subject names
 # set up fit to data
-
 # Grab a list of subjects
 listOfSubjects = subjs;
 
@@ -38,7 +34,6 @@ estcontp=FALSE  # estimate contaminant mixture probability from data. usually se
 
 bailouttime=4  # time after which to bail out of diffusion sims, in seconds
 maxTimeStep=as.double(length(seq(0,bailouttime,.001)))   # max iterations for fitting routine, then bail out
-
 pred=F  # generate model predictions from fitting routine (only use this once you have estimtated parameters from data using DEoptim)
 
 nreps = 5;
@@ -47,7 +42,8 @@ gub=4
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 
-for(subjId in c(1))
+# For each subject in list of subjects
+for(subjId in c(seq(1,nsubj)))
 {
   subjnam=listOfSubjects[subjId]
   for(modelId in seq(1,length(modelList)))
@@ -68,8 +64,10 @@ for(subjId in c(1))
     
     # make parameter vector - different scaling for Stone and Stone+UGM
     #    order: drifts (7), eta, upper boundary, Ter
+    # v1 is 0% coherence, will be set to 0 drift in internal function
+    
     nstart=1;
-    nds=length(ncohs)    # v1 is 0% coherence, will be set to 0 drift in internal function
+    nds=length(ncohs) 
     
     
     actualParams = paramsandlims(model, nds, nstart=nstart)
@@ -133,8 +131,8 @@ for(subjId in c(1))
     print(round(reobj,4))
     
     
-    # Now compute it for each level of quantile. Suspicion is that you go awry for the hardest coherences and you really need to think 
-    # about what goes on there. Life is not easy there :)
+    # Now compute it for each level of quantile.
+    
     mcsforpreds=50000
     reobjperpoint=objPerQ(x=tmp$optim$bestmem,dat=dat,nmc=mcsforpreds,
                           contp=contp,ncohs=ncohs,fitUGM=fitUGM,gub=gub,pred=FALSE,
