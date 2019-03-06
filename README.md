@@ -23,9 +23,9 @@ We assume that there is a reasonable working knowledge of R and C to run this co
 
 To run the model on your specific architecture you need to compile a shared object file that is dynamically loaded by R to perform the optimization. This is done very easily by typing the following code at a command line prompt. 
 
-R CMD SHLIB chartr-modelspec.c
+R CMD SHLIB chartr-ModelSpec.c
 
-This command compiles chartr-diffusion.c and then link the output object file into a shared object (.so on unix systems such as a MAC and LINUX) which can be loaded into R using the function dyn.load.
+This command compiles chartr-ModelSpec.c and then link the output object file into a shared object (.so on unix systems such as a MAC and LINUX) which can be loaded into R using the function dyn.load.
 
 The implementation has not been tested on windows.
 
