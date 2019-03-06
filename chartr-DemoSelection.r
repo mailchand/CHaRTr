@@ -1,5 +1,7 @@
 rm(list=ls())
-source("modelSelection.r")
+source("chartr-ModelSelection.r")
+
+
 VERBOSE = TRUE;
 
 ### Example usage ###

@@ -10,6 +10,8 @@
 
 source("chartr-helperfunctions.r")
 # Function to calculate model weights
+#
+# 
 pmp=function(IC) {
   # IC is the information criteria (AIC or BIC) for a set of models under comparison
   x=IC-min(IC)
@@ -33,6 +35,8 @@ calcIC = function(ll, npars, N)
 }
 
 # Calculate AIC/BIC and their conversion to model weights 
+#
+#
 modelSelection=function(models,data) {
   # models is a list where each element holds the output from a model fit
   # data is a single subjects data informations
@@ -49,6 +53,9 @@ modelSelection=function(models,data) {
 }
 
 # This formats columns of data frames with different columns having different numbers of digits if needed.
+# 
+#
+# 
 formatColumns = function(data, digits)
 {
     "%,%" <- function(x,y)paste(x,y,sep="")

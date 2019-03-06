@@ -5,9 +5,9 @@ currwd = getwd();
 
 
 source("chartr-FitRoutines.r")
-source("chartr-helperfunctions.r")
-source("plotUtils.r")
-source("modelSelection.r")
+source("chartr-HelperFunctions.r")
+source("chartr-PlotUtils.r")
+source("chartr-ModelSelection.r")
 
 # load C functions
 dyn.load("chartr-modelspec.so")

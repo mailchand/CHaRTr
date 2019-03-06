@@ -3,10 +3,9 @@ rm(list=ls())
 currwd = getwd();
 
 source("chartr-FitRoutines.r")
-source("diffusion-EAM-UGM.r")
-source("plotUtils.r")
-source("chartr-helperfunctions.r")
-source("modelSelection.r")
+source("chartr-PlotUtils.r")
+source("chartr-HelperFunctions.r")
+source("chartr-ModelSelection.r")
 
 # load C functions for simulating various parameters
 dyn.load("chartr-modelspec.so")
@@ -19,7 +18,6 @@ subjectDir = paste(getwd(),'/', whichDir,sep='')
 
 # set up plot for predicted distributions from the 
 # Examples
-par(mfrow=c(1,2),mar=c(4,4,2,1))
 
 # Select quantiles to plot
 qps=seq(.1,.9,.2) ; 
@@ -168,7 +166,7 @@ if(useggplot)
                 axis.ticks.x = element_line("gray", size=.25), axis.ticks.length = unit(.25,"cm"));
   
   
-  grid.arrange(p2,nrow=2,ncol=2)
+  grid.arrange(p2,nrow=1,ncol=1)
 }else
 {
   par(mfrow=c(1,2))
