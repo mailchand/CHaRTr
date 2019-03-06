@@ -1,11 +1,10 @@
-library(ggplot2)
-library(gridExtra)
-library(ggthemes)
+require(ggplot2)
+require(gridExtra)
+require(ggthemes)
 
 useAIC = FALSE;
 
-
-# 2. Calculate AIC, BIC, AIC weights, BIC weights
+# 1. Calculate AIC, BIC, AIC weights, BIC weights
 # Useful for model averaging and model selection.
 ms=modelSelection(models=modelOutput, data=dat)
 # simple plot to show differnces between models

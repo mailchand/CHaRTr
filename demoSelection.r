@@ -10,8 +10,8 @@ VERBOSE = TRUE;
 
 
 dataDir = "RS2002/"
-resultsDir = 'RS2002_FinalFits/'
-subjnam = "n"
+resultsDir = 'RS2002_Fits/'
+subjnam = "b"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -19,6 +19,13 @@ N = sum(dat$n)
 
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
+
+# Use for figures 9a, b in the paper
+#modelList = c("DDM", "DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
+#             "cDDMSvSzSt", "cfkDDMSvSzSt", "cDDMSvSt", "cfkDDMSvSt",
+#            "uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
+
+# modelList = c('DDM','DDMSvSz','DDMSv','UGM','bUGMSvSb','UGMSv','bUGMSv','UGMSt','bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
