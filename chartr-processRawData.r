@@ -1,6 +1,6 @@
 # Compute a set of variables from the raw data.
-Trials = read.csv(paste("RawData/Tiberius.csv"));
-saveFileName="RawData/Tiberius.Rdata";
+Trials = read.csv(paste("YOURDIR/YOURFILENAME"));
+saveFileName="YOURFILENAME";
 cohValues = unique(Trials$coherence);
 cohValues = sort(cohValues,decreasing=FALSE)
 # Now count number of trials for each condition
@@ -27,6 +27,7 @@ whichQ = seq(1,10,2)
 
 cnt = 1;
 print("Writing down different coherence values")
+# Here we had 7 levels of coherence
 for(cid in c(4,10,20,31,40,60,90)){
   # print(cid)
   iX = Trials$coherence==cid;

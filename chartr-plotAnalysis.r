@@ -3,14 +3,14 @@
 rm(list=ls())
 currwd = getwd();
 
-
 source("chartr-FitRoutines.r")
 source("chartr-HelperFunctions.r")
 source("chartr-PlotUtils.r")
 source("chartr-ModelSelection.r")
 
 # load C functions
-dyn.load("chartr-modelspec.so")
+dyn.load("chartr-ModelSpec.so")
+
 # load RS2002 data sets to find suitable subjects
 
 dataDir = "caseStudy1";

@@ -16,4 +16,4 @@ getOS = function(){
 
 
 if(getOS()=="linux")
-  dyn.load("chartr-modelspec.so")
+  dyn.load("chartr-ModelSpec.so")

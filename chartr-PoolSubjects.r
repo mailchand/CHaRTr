@@ -8,7 +8,7 @@ source("chartr-HelperFunctions.r")
 source("chartr-ModelSelection.r")
 
 # load C functions for simulating various parameters
-dyn.load("chartr-modelspec.so")
+dyn.load("chartr-ModelSpec.so")
 # load RS2002 data sets to find suitable subjects
 
 useAIC = FALSE;

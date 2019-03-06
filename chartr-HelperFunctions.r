@@ -1,4 +1,4 @@
-dyn.load("chartr-modelspec.so")
+dyn.load("chartr-ModelSpec.so")
 
 # 24 models 
 #' Generate a list of models to be used for fitting RTs and Choice
@@ -414,7 +414,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
 # lambda, aprime, k - parameters for the collapsing bounds model
 {
   
-  dyn.load("chartr-modelspec.so")
+  dyn.load("chartr-ModelSpec.so")
   rts <- resps <- numeric(nmc)
   
   listOfModels = returnListOfModels()
