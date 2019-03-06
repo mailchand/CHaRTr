@@ -7,8 +7,6 @@ VERBOSE = TRUE;
 # We could probably make a simpler version of this step, so that the 
 # emphasis remains on the second step. 
 
-
-
 dataDir = "RS2002/"
 resultsDir = 'RS2002_Fits/'
 subjnam = "b"
@@ -25,7 +23,8 @@ modelList = unname(allValidModels$modelNames)
 #             "cDDMSvSzSt", "cfkDDMSvSzSt", "cDDMSvSt", "cfkDDMSvSt",
 #            "uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
 
-# modelList = c('DDM','DDMSvSz','DDMSv','UGM','bUGMSvSb','UGMSv','bUGMSv','UGMSt','bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
+# modelList = c('DDM','DDMSvSz','DDMSv','UGM','bUGMSvSb','UGMSv','bUGMSv','UGMSt',
+#                'bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
@@ -101,7 +100,5 @@ if(useggplot)
   par(mfrow=c(1,2))
   source("standardModelPlot.r")
 }
-
-
 
 # 
