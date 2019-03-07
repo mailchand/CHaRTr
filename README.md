@@ -11,7 +11,7 @@ This toolbox is an attempt by us (Chand Chandrasekaran, Guy Hawkins) to provide 
 
 4. <b> Ease of Use </b>: When trying to learn how to use these different models to understand decision-making, the brick wall that often comes up was implementing such a model in any language and deriving RT and choice outputs from it. Unfortunately, these are all stochastic differential equations and analytical solutions are rare except for some remarkably simple cases. Fortunately, R has powerful optimizers and we decided to leverage the powerful optimization technique such as Differential Evolution to fit the parameters of various models.
 
-We outline further details in the accompanying biorxiv paper that is currently under review. If you use the toolbox in your own research please cite the paper in the main manuscript.
+We outline further details in the accompanying biorxiv paper [link](doi: https://doi.org/10.1101/570184) that is currently under review. If you use the toolbox in your own research please cite the paper in the main manuscript.
 
 ### Using this toolbox. 
 
