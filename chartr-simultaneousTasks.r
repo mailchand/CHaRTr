@@ -8,6 +8,7 @@
 
 
 rm(list=ls())
+library(tictoc);
 source("chartr-FitRoutines.r")
 source("chartr-HelperFunctions.r")
 
