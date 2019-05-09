@@ -53,6 +53,10 @@ for(subjId in seq(1,length(listOfSubjects)))
   for(modelId in seq(1,length(modelList)))
   {
 
+    # Clear logs for tic
+    tic.clearlog();
+    tic("dataLoading", quiet=TRUE);
+    
     # load data set to fit
     load(paste(dirs,"/",subjnam,sep=""))
     model= modelList[modelId]
@@ -83,13 +87,15 @@ for(subjId in seq(1,length(listOfSubjects)))
     timecons=ifelse(fitUGM < 0,0,100)   # time constant for low pass filter
     usign=ifelse(fitUGM < 0,0,1)        # scaling value for linear urgency function (usign=1 is linear with time). EAM needs usign=0, timecons=0
     
+    toc(log=TRUE,quiet=TRUE);
+    
     
     # cutoff for very slow RTs
     # gub = global upper bound in seconds - no RTs should be slower than this (and none were in data)
-    
+    tic("optimization", quiet=TRUE);
     print("Starting optimization ...")
     library(DEoptim)
-    system.time({
+    
       tmp=DEoptim(
         fn=obj,
         lower=lowers,
@@ -115,9 +121,13 @@ for(subjId in seq(1,length(listOfSubjects)))
                                             "qps", "stepsize","stoch.s","timecons","usign","parnames","maxTimeStep","maxits","nparticles","gub",
                                             "diffusionC","makeparamlist","contaminantmixresps","qmpouts","getpreds","obj","returnListOfModels")
                                 # same again, but for functions
-        ))})
+        ));
     cat(paste("\n",dirs,"dataset:",subjnam,", model:",model,fnam,"\n\n",sep=" "))
     
+    toc(log=TRUE,quiet=TRUE);
+      
+    tic("objective",quiet=TRUE);
+      
     out=tmp$optim$bestmem
     names(out)=parnames
     print(round(out,4))
@@ -141,11 +151,21 @@ for(subjId in seq(1,length(listOfSubjects)))
                           qps=qps,stepsize=stepsize,stoch.s=stoch.s,timecons=timecons,usign=usign,
                           parnames=parnames,maxTimeStep=maxTimeStep)
     print(round(reobjperpoint,4))
+    toc(log=TRUE,quiet=TRUE);
     
+    # Now get timings etc from the toc log.
+    
+    timingLogTxt <- tic.log(format = TRUE);
+    timingLogLst <- tic.log(format = FALSE)
+    timings <- unlist(lapply(timingLogLst, function(x) x$toc - x$tic))
+    rawTimingsTic <- unlist(lapply(timingLogLst, function(x) x$tic))
+    rawTimingsToc <- unlist(lapply(timingLogLst, function(x) x$toc))
     
     out=list(dataset=subjnam,model=model,ndataset=fnam,pars=out,
              obj=-tmp$optim$bestval,reobj=-reobj, reobjperpoint=reobjperpoint, 
-             lower=lowers, upper=uppers)
+             lower=lowers, upper=uppers,
+             timings = timings, timingLogLst = timingLogLst, timingLogTxt = timingLogTxt, 
+             rawTimingsTic = rawTimingsTic, rawTimingsToc = rawTimingsToc);
     
     
     save(out,file=saveFileName)
