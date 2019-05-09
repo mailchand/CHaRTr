@@ -9,7 +9,7 @@
 
 rm(list=ls())
 source("chartr-FitRoutines.r")
-source("chartr-helperfunctions.r")
+source("chartr-HelperFunctions.r")
 
 jobnum=as.numeric(Sys.getenv("SGE_TASK_ID"));
 
