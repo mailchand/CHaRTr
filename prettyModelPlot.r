@@ -12,9 +12,9 @@ par(mar=c(20,8,5,2))
 if(useAIC){ 
   x = ms$AIC-ms$AIC[1]
 }else
-   x = ms$BIC-ms$BIC[1]
+  x = ms$BIC-ms$BIC[1]
 
-  orderV = order(-x);
+orderV = order(-x);
 currentModels = rownames(ms);
 myColor = rgb(red=69/255, green=139/255, blue=116/255,alpha=0.8)
 modelId=rownames(ms);
@@ -62,7 +62,7 @@ if(useAIC){
   x = ms$AICw;
 }else
   x = ms$BICw;
-  
+
 orderV = order(x);
 
 modelId=rownames(ms);
