@@ -1,4 +1,4 @@
-#' Processes RT data from our experiments and uses it for testing if the DDM or the UGM
+git #' Processes RT data from our experiments and uses it for testing if the DDM or the UGM
 #' are better fits to the data
 #' interface script for fitting routines to test Stone vs Stone+UGM model #
 #' 

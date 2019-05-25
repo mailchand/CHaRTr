@@ -10,8 +10,8 @@ usemodel = modelList
 dataDir = "caseStudy1";
 resultsDir = "caseStudy1_Fits/"
 
-subjnam = "Subj2"
-allRuns = letters[6:11];
+subjnam = "Subj1"
+allRuns = letters[7:11];
 nreps = length(allRuns);
 
 timingResults = data.frame(matrix(0,length(modelList), nreps+1));

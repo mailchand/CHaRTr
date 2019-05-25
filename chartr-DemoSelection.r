@@ -9,9 +9,9 @@ VERBOSE = TRUE;
 # We could probably make a simpler version of this step, so that the 
 # emphasis remains on the second step. 
 
-dataDir = "RS2002/"
-resultsDir = 'RS2002_Fits/'
-subjnam = "b"
+dataDir = "caseStudy2/"
+resultsDir = 'caseStudy2_Fits/'
+subjnam = "Subj4"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -30,8 +30,8 @@ modelList = unname(allValidModels$modelNames)
 
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 5;
-allRuns = letters[c(1,2,3,4,5)];
+nreps = 10;
+allRuns = letters[1:nreps];
 tempReObj = seq(1,length(allRuns))
 
 modelResults = data.frame(matrix(0,length(modelList), nreps+1));
