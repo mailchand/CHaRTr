@@ -9,8 +9,18 @@ allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 usemodel = modelList
 
-dataDir = "caseStudy2";
-resultsDir = "caseStudy2_Fits/"
+
+dataDir = "caseStudy1";
+resultsDir = "caseStudy1_Fits/"
+
+subjnam = "Subj1"
+allRuns = letters[7:11];
+nreps = length(allRuns);
+
+timingResults = data.frame(matrix(0,length(modelList), nreps+1));
+
+
+
 
 snams = dir(dataDir)
 

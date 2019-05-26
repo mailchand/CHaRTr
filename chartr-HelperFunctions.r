@@ -415,6 +415,12 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
 {
   
   dyn.load("chartr-ModelSpec.so")
+  
+  # For the future to speed up analyses
+  #interval=0.00001;
+  #LUT=qnorm(seq(interval,1-interval,interval));
+  #nLUT = length(LUT);
+  
   rts <- resps <- numeric(nmc)
   
   listOfModels = returnListOfModels()
@@ -430,7 +436,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          DDM={
            
            out=.C("DDM",z=z,v=v,aU=aU,aL=aL, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep, rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT))
            rts=out$rt + Ter;
          },
          

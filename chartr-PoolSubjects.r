@@ -11,7 +11,7 @@ source("chartr-ModelSelection.r")
 dyn.load("chartr-ModelSpec.so")
 # load RS2002 data sets to find suitable subjects
 
-useAIC = FALSE;
+useAIC = TRUE;
 whichDir = "caseStudy2";
 resultsDir = "_Fits/";
 subjectDir = paste(getwd(),'/', whichDir,sep='')
@@ -48,7 +48,7 @@ snams=names(data) ;
 nsubj=length(data);
 
 # Number of repeats of the fitting
-nreps=5;
+nreps=10;
 lets=letters[1:nreps];
 
 # for now, only get reobj value (parameters later)
