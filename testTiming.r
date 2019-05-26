@@ -78,17 +78,21 @@ for(s in snams)
 }
 rownames(allTimingResults) = rownames(timingResults)
 
+allTimingResults["meanV"] = rowMeans(allTimingResults);
+allTimingResults = transform(allTimingResults, SEV=apply(allTimingResults/3600,1, sd, na.rm = TRUE)/sqrt(5));
+
 currentModels = rownames(allTimingResults);
-x = rowMeans(allTimingResults)/3600;
+x = allTimingResults["meanV"]/3600
 orderV = order(x)
-dataFrame = data.frame(V=x, modelId = as.factor(currentModels));
+dataFrame = data.frame(V=unname(x),Ve = unname(allTimingResults["SEV"]), modelId = as.factor(currentModels));
 dataFrame$modelId = factor(dataFrame$modelId, 
                            levels = dataFrame$modelId[order(dataFrame$V)])
 
 p1=ggplot(dataFrame, aes(modelId,V), stat="identity");
 p1=p1 + geom_col(alpha=0.6) + geom_hline(yintercept=0, linetype="dashed")
+p1=p1 + geom_errorbar(aes(ymin=V-Ve,ymax=V+Ve), width=0.2, position=position_dodge(.9));
 p1=p1 + coord_flip() + theme_minimal()
-p1=p1 + ggtitle(paste("All Models, ",subjnam));
+p1=p1 + ggtitle(paste("Average Time"));
 p1=p1 + theme(text = element_text(size=14));
 p1=p1 + theme(aspect.ratio = 1);
 p1=p1 + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank());

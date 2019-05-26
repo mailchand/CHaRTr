@@ -8,7 +8,7 @@
 # see Wasserman, L. (2000). Bayesian model selection and averaging. 
 # Journal of Mathematical Psychology, 44, 92-107. 
 
-source("chartr-helperfunctions.r")
+source("chartr-HelperFunctions.r")
 # Function to calculate model weights
 #
 # 
