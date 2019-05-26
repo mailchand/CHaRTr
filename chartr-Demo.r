@@ -19,7 +19,9 @@ model = "DDM"
 fP = paramsandlims(model,nCoh, fakePars = TRUE)
 currParams = fP$fakeParams
 currParams["aU"] = 0.09
+tic("Slow DDM")
 R = simulateRTs(model, currParams , n=nmc, nds=nCoh)
+toc();
 
 # DDM model with variable drift rate, baseline and non-decision time
 model = "DDMSvSzSt"
