@@ -1,4 +1,4 @@
-library(tictoc)
+require(tictoc)
 
 dyn.load("chartr-ModelSpecFast.so")
 interval=0.00001
@@ -8,6 +8,7 @@ nmc = 10000;
 rts <- resps <- numeric(nmc)
 z = 0.04;
 v = 0.4;
+eta=0.003;
 aU = 0.08
 aL = 0;
 stoch.s = 0.1;
@@ -20,8 +21,11 @@ L1 = mean(out$rt)
 S1 = sum(out$response==1)
 toc()
 
+
+dyn.load("chartr-ModelSpec.so")
 tic("slowrnd")
-out=.C("DDMs",z=z,v=v,aU=aU,aL=aL, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+out=.C("DDM",z=z,v=v,aU=aU,aL=aL, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+       rangeLow =as.integer(0), rangeHigh = as.integer(n-1), randomTable = as.double(LUT));
 L2 = mean(out$rt)
 S2 = sum(out$response==1)
 toc()

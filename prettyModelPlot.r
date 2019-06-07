@@ -2,7 +2,7 @@ require(ggplot2)
 require(gridExtra)
 require(ggthemes)
 
-useAIC = TRUE;
+useAIC = FALSE;
 
 # 1. Calculate AIC, BIC, AIC weights, BIC weights
 # Useful for model averaging and model selection.

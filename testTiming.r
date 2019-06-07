@@ -10,10 +10,10 @@ modelList = unname(allValidModels$modelNames)
 usemodel = modelList
 
 
-dataDir = "caseStudy1";
-resultsDir = "caseStudy1_Fits/"
+dataDir = "caseStudy2";
+resultsDir = "caseStudy2_Fits/"
 
-subjnam = "Subj1"
+
 allRuns = letters[7:11];
 nreps = length(allRuns);
 
@@ -26,6 +26,9 @@ snams = dir(dataDir)
 
 allTimingResults = data.frame(matrix(0,length(modelList),length(snams)));
 colnames(allTimingResults) = snams;
+
+npars = c();
+
 for(s in snams)
 {
   subjnam = s
@@ -62,6 +65,7 @@ for(s in snams)
         currTime = unname(out$timings[2])
         timingResults[model, m] = currTime
         
+        npars[model] = length(out$pars);
         # Pick best model fit from each iteration
         if(currTime < bestTime)
         {
@@ -88,18 +92,35 @@ for(s in snams)
 }
 rownames(allTimingResults) = rownames(timingResults)
 
+allTimingResults["meanV"] = rowMeans(allTimingResults);
+allTimingResults = transform(allTimingResults, SEV=apply(allTimingResults/3600,1, sd, na.rm = TRUE)/sqrt(5));
+allTimingResults["npars"] = npars;
+
+
 currentModels = rownames(allTimingResults);
-x = rowMeans(allTimingResults)/3600;
+x = allTimingResults["meanV"]/3600
 orderV = order(x)
-dataFrame = data.frame(V=x, modelId = as.factor(currentModels));
+dataFrame = data.frame(V=unname(x),Ve = unname(allTimingResults["SEV"]), npars=allTimingResults["npars"], modelId = as.factor(currentModels));
 dataFrame$modelId = factor(dataFrame$modelId, 
                            levels = dataFrame$modelId[order(dataFrame$V)])
 
 p1=ggplot(dataFrame, aes(modelId,V), stat="identity");
-p1=p1 + geom_col(alpha=0.6) + geom_hline(yintercept=0, linetype="dashed")
+p1=p1 + geom_col(alpha=0.3);
+# p1 = p1 + geom_segment(aes(y=0,yend=V,x=modelId,xend=modelId));
+p1=p1 + geom_errorbar(aes(ymin=V-Ve,ymax=V+Ve), width=0.2, position=position_dodge(.9));
 p1=p1 + coord_flip() + theme_minimal()
-p1=p1 + ggtitle(paste("All Models, ",subjnam));
+p1=p1 + ggtitle(paste("Average Time"));
 p1=p1 + theme(text = element_text(size=14));
-p1=p1 + theme(aspect.ratio = 1);
+p1=p1 + theme(aspect.ratio = 1) + labs(y = "Run time (Hrs)", x='Model');
 p1=p1 + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank());
-show(p1)
+
+
+p2 = ggplot(dataFrame, aes(npars,V), stat="identity") +   geom_jitter(alpha=0.4, position = position_jitter(w=0.4,h=0.2, seed=1), size=5);
+# p2 = p2 +  geom_errorbar(aes(ymin=V-Ve,ymax=V+Ve), width=0.2, position=position_dodge(.9));
+p2 = p2 + theme_minimal()  + geom_text(label=rownames(dataFrame), position = position_jitter(w=0.5,h=0,seed=1));
+p2 = p2 +  theme(aspect.ratio = 1) + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank());
+p2 = p2 + theme(text = element_text(size=14));
+p2 = p2 + theme(axis.line.x = element_line(color="black", size = .5),
+      axis.line.y = element_line(color="black", size = .5), axis.ticks = element_line(size=0.5),axis.ticks.length = unit(.25, "cm") )
+p2 = p2 +  labs(y = "Run time (Hrs)", x='Number of parameters');
+grid.arrange(p1, p2, nrow=2, ncol=2)
