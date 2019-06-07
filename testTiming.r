@@ -10,10 +10,10 @@ modelList = unname(allValidModels$modelNames)
 usemodel = modelList
 
 
-dataDir = "caseStudy1";
-resultsDir = "caseStudy1_Fits/"
+dataDir = "caseStudy2";
+resultsDir = "caseStudy2_Fits/"
 
-subjnam = "Subj2"
+
 allRuns = letters[7:11];
 nreps = length(allRuns);
 

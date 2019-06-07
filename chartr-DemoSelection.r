@@ -11,7 +11,7 @@ VERBOSE = TRUE;
 
 dataDir = "caseStudy2/"
 resultsDir = 'caseStudy2_Fits/'
-subjnam = "Subj4"
+subjnam = "Subj1"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)

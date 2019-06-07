@@ -1,4 +1,4 @@
-dyn.load("chartr-ModelSpec.so")
+dyn.load("chartr-ModelSpecFast.so")
 
 # 24 models 
 #' Generate a list of models to be used for fitting RTs and Choice
@@ -393,7 +393,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 #' diffusionC(v=0.4, eta=0.05, aU=0.1,aL=0, Ter=0.3,z=0.05,nmc=1000,dt=0.001,stoch.s=0.1,maxTimeStep=4,fitUGM=-12)
 diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,stoch.s,
                     maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, 
-                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE) 
+                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE, FASTRAND=TRUE,
+                    nLUT=nLUT, LUT = LUT) 
   # v - 
   # eta - 
   # aU - 
@@ -413,13 +414,10 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
 # sx, xy, delay - parameters for the Ditterich model
 # lambda, aprime, k - parameters for the collapsing bounds model
 {
-  
-  dyn.load("chartr-ModelSpec.so")
-  
-  # For the future to speed up analyses
-  #interval=0.00001;
-  #LUT=qnorm(seq(interval,1-interval,interval));
-  #nLUT = length(LUT);
+  if(FASTRAND)
+    dyn.load("chartr-ModelSpecFast.so")
+  else
+    dyn.load("chartr-ModelSpec.so")
   
   rts <- resps <- numeric(nmc)
   
@@ -436,7 +434,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          DDM={
            
            out=.C("DDM",z=z,v=v,aU=aU,aL=aL, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep, rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT))
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep, 
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT))
            rts=out$rt + Ter;
          },
          
@@ -444,7 +443,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # model to include some variability in the drift rates.
          DDMSv={
            out=.C("DDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt + Ter;
          },
          
@@ -452,14 +452,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # 
          UGM={
            out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          
          # DDM model now adding variability of the drift rate
          UGMSv={
            out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep, 
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          
@@ -468,7 +470,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          bUGMSv={
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          
@@ -476,21 +479,24 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          bUGMSvSb={
            out=.C("bUGMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          
          # Now assume a Urgency model where you fit the intercept, variability in this intercept and a variable slope
          uDDMSvSb={
            out=.C("uDDMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
-                  usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          }, 
          
          # Now assume a Urgency model where you fit the intercept, and a slope term. 
          uDDMSv={
            out=.C("uDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
-                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          },
          
@@ -503,70 +509,81 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          DDMSvSt={
            out=.C("DDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          # This is a bit of a misnomer. The Ratcliff model always assumes a variable residual movement time
          ratcliff={
            out=.C("ratcliff",zmin=zmin, zmax=zmax,v=v,aU=aU,aL=aL,eta=eta,s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt) +runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          DDMSvSz={
            out=.C("DDMSvSz",zmin=zmin, zmax=zmax,v=v,aU=aU,aL=aL,eta=eta,s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
          # Identical to the ratcliffSt model
          DDMSvSzSt={
            out=.C("DDMSvSz",zmin=zmin, zmax=zmax,v=v,aU=aU,aL=aL,eta=eta,s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          # This is the ditterich model that assumes a complex shape for the bound collapse
          dDDMSvSt={
            out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          dDDMSv={
            out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
            
          },
          
          dDDMSvSzSt={
            out=.C("dDDMSvSz",zmin=zmin,zmax=zmax,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          cfkDDMSvSt={
            out=.C("cfkDDMSv",z=z,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          # Replicating model from Hawkins et al. 2015
          cfkDDMSvSzSt={
            out=.C("cfkDDMSvSz",zmin=zmin,zmax=zmax,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          cDDMSvSt={
            out=.C("cDDMSv",z=z,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          cDDMSvSzSt={
            out=.C("cDDMSvSz",zmin=zmin, zmax=zmax,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
@@ -575,26 +592,30 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          cfkDDMSv={
            out=.C("cfkDDMSv",z=z,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
          
          # Replicating model from Hawkins et al. 2015
          cfkDDMSvSz={
            out=.C("cfkDDMSvSz",zmin=zmin,zmax=zmax,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
          
          cDDMSv={
            out=.C("cDDMSv",z=z,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
          
          cDDMSvSz={
            out=.C("cDDMSvSz",zmin=zmin, zmax=zmax,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
-                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep)
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
          
@@ -602,7 +623,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          cUGMSvSt={
              out=.C("cUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,lambda=lambda,
-                  k=k, aprime=aprime, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  k=k, aprime=aprime, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
              rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);   
            
          },
@@ -611,14 +633,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # Now do the urgency model with variable Ter
          UGMSt={
            out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
          # Consider a UGM with variable drift rate and also variable non decision time. 
          UGMSvSt={
            out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
@@ -628,7 +652,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          bUGMSvSt={
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
@@ -636,7 +661,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          bUGMSvSbSt={
            out=.C("bUGMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
-                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
@@ -649,12 +675,14 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          uDDMSvSbSt={
            out=.C("uDDMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
-                  usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          }, 
          uDDMSvSt={
            out=.C("uDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
-                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep);
+                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          }
          # Example to get a collapsing UGM up and running.
@@ -720,7 +748,7 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
 #
 #
 # 
-simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabels = FALSE, plotData=TRUE){
+simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabels = FALSE, plotData=TRUE, FASTRAND=TRUE){
   # model specifies the model to simulate
   # ps passes in parameters
   # nmc and maxiter are parameters for the simulation
@@ -729,6 +757,11 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
   trlsteps=seq(0,bailouttime,.001)
   maxTimeStep=as.double(length(trlsteps))
   
+  
+  # For the future to speed up analyses
+  interval=0.00001;
+  LUT=qnorm(seq(interval,1-interval,interval));
+  nLUT = length(LUT);
   
   lwds=2.5
   ptcexs=1.4
@@ -800,14 +833,14 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
   for(v in 1:nds) {
     rts <- resps <- numeric(nmc)
     
+    tic(paste("Condition",v))
     tmp = diffusionC(v=ps[v], eta=ps["eta"], aU = ps["aU"], aL = aL, Ter=ps["Ter"], 
                      intercept=ps["intercept"], ieta=ps["ieta"], st0 = ps["st0"], z=z, zmin=ps["zmin"],
                      zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], 
                      sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
                      aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                     n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM)
-    
-    
+                     n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM, FASTRAND=FASTRAND, nLUT = nLUT, LUT = LUT)
+    toc();
     # Now count the number of good and bad numbers
     counts["cor",v] = sum(tmp$resp==1)
     counts["err",v] = sum(tmp$resp==2)

@@ -11,7 +11,7 @@ source("chartr-ModelSelection.r")
 dyn.load("chartr-ModelSpec.so")
 # load RS2002 data sets to find suitable subjects
 
-useAIC = TRUE;
+useAIC = FALSE;
 whichDir = "caseStudy2";
 resultsDir = "_Fits/";
 subjectDir = paste(getwd(),'/', whichDir,sep='')

@@ -55,12 +55,17 @@ getpreds=function(x,dat,nmc,contp,ncohs,fitUGM,pred=F,gub,
   mod=list(p=vector(length=length(dat$p)))
   if(pred) mod$q=array(dim=dim(dat$q)) else mod$q=array(dim=dim(dat$pb))
   
+  interval=0.00001;
+  LUT=qnorm(seq(interval,1-interval,interval));
+  nLUT = length(LUT);
+  
   for(N in 1:length(ncohs)){
     tmp=diffusionC(v=z$v[N],eta=z$eta,aU=z$aU,aL=z$aL,Ter=z$Ter,
                    intercept=z$intercept, ieta=z$ieta, st0=z$st0,
                    z=z$z, zmin=z$zmin,zmax=z$zmax,timecons_var = z$timecons_var, usign_var = z$usign_var, 
                    sx = z$sx, sy=z$sy, delay=z$delay,lambda = z$lambda, aprime = z$aprime, k = z$k,
-                   nmc=nmc,dt=stepsize,stoch.s=stoch.s,maxTimeStep=maxTimeStep,fitUGM=fitUGM, timecons=timecons,usign=usign)    # final two for Stone+UGM model
+                   nmc=nmc,dt=stepsize,stoch.s=stoch.s,maxTimeStep=maxTimeStep,fitUGM=fitUGM, timecons=timecons,usign=usign, 
+                   nLUT=nLUT, LUT=LUT)   
               # remove trials slower than gub
               use=tmp$rts<gub
               # with no between trial variability, can get stuck in bad parameter space
