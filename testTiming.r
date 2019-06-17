@@ -1,5 +1,7 @@
 # Test the amount of time needed for the various models
+
 rm(list=ls())
+require(gridExtra);
 
 library(ggplot2)
 source("chartr-ModelSelection.r")
@@ -11,11 +13,11 @@ usemodel = modelList
 
 
 dataDir = "caseStudy2";
-resultsDir = "caseStudy2_Fits/"
+resultsDir = "caseStudy2_FastFits/"
 
+runs = seq(6,10)-5;
 
-allRuns = letters[7:11];
-nreps = length(allRuns);
+nreps = length(runs);
 
 timingResults = data.frame(matrix(0,length(modelList), nreps+1));
 
@@ -23,22 +25,29 @@ timingResults = data.frame(matrix(0,length(modelList), nreps+1));
 
 
 snams = dir(dataDir)
+snams = c('Subj1','Subj2','Subj3')
 
 allTimingResults = data.frame(matrix(0,length(modelList),length(snams)));
 colnames(allTimingResults) = snams;
+allNums = data.frame(matrix(0,length(snams),length(runs)+1))
+rownames(allNums) = snams;
+cnt = 1;
 
 npars = c();
+
+validNames = letters[runs];
+validNames[length(validNames)+1] = "best";
+colnames(allNums) = validNames;
 
 for(s in snams)
 {
   subjnam = s
-  allRuns = letters[7:10];
+  allRuns = letters[runs];
   nreps = length(allRuns);
   
   timingResults = data.frame(matrix(0,length(modelList), nreps+1));
   rownames(timingResults) = modelList;
-  validNames = allRuns;
-  validNames[length(allRuns)+1] = "best";
+
   
   colnames(timingResults) = validNames;
   
@@ -76,6 +85,7 @@ for(s in snams)
           uselet=fnam;
           timingResults[model,"best"] = bestTime;
         }
+        
         # Finish selecting
       }
       else
@@ -84,12 +94,26 @@ for(s in snams)
       }
       
     }
+   
     if(VERBOSE)
       cat(paste("choosing ", uselet))
   }
-
+  allNums[s,] = colSums(timingResults)
   allTimingResults[,subjnam]=rowMeans(timingResults);
 }
+
+data = c()
+cnt = 1;
+for(s in snams)
+{
+  for(b in allRuns)
+  {
+        data[cnt] = allNums[s,b]
+        cnt = cnt +1 
+  }
+}
+
+
 rownames(allTimingResults) = rownames(timingResults)
 
 allTimingResults["meanV"] = rowMeans(allTimingResults);
