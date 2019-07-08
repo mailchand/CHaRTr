@@ -544,7 +544,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          },
          
          uDDM={
-           out=.C("uDDMSv",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+           out=.C("uDDM",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
@@ -660,7 +660,6 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
-         
          cDDMSv={
            out=.C("cDDMSv",z=z,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
@@ -669,10 +668,10 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          },
          
          cDDM={
-           out=.C("cDDMSv",z=z,v=v,lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
+           out=.C("cDDM",z=z,v=v,lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
-           rts=out$rt+Ter;
+               rts=out$rt+Ter;
          },
          
          
