@@ -11,11 +11,51 @@ allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 usemodel = modelList
 
+whatToRun = "cs2, fast, 200, 5000"
+switch(whatToRun,
+       "cs1, slow, 400, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_Fits/"
+         runs = seq(6,10)+1;
+       },
+       "cs2, slow, 400, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_Fits/"
+         runs = seq(6,10);
+       },
+       "cs1, fast, 400, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5);
+       },
+       "cs2, fast, 400, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5);
+       },
+       "cs1, fast, 200, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5)+5;
+       },
+       "cs2, fast, 200, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5)+5;
+       },
+       "cs1, fast, 200, 5000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5)+15;
+       },
+       "cs2, fast, 200, 5000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5)+15;
+       }
+)
 
-dataDir = "caseStudy2";
-resultsDir = "caseStudy2_FastFits/"
 
-runs = seq(6,10)-5;
 
 nreps = length(runs);
 
@@ -25,10 +65,12 @@ timingResults = data.frame(matrix(0,length(modelList), nreps+1));
 
 
 snams = dir(dataDir)
-snams = c('Subj1','Subj2','Subj3')
+snams = c('Subj1','Subj2','Subj3','Subj4','Subj5')
 
 allTimingResults = data.frame(matrix(0,length(modelList),length(snams)));
 colnames(allTimingResults) = snams;
+
+
 allNums = data.frame(matrix(0,length(snams),length(runs)+1))
 rownames(allNums) = snams;
 cnt = 1;
@@ -100,6 +142,15 @@ for(s in snams)
   }
   allNums[s,] = colSums(timingResults)
   allTimingResults[,subjnam]=rowMeans(timingResults);
+  if(cnt==1){
+    newData = timingResults[,1:5];
+  }else
+  {
+
+    newData = cbind(newData, timingResults[,1:5]);
+  }
+  cnt = cnt + 1;
+  
 }
 
 data = c()
@@ -147,4 +198,21 @@ p2 = p2 + theme(text = element_text(size=14));
 p2 = p2 + theme(axis.line.x = element_line(color="black", size = .5),
       axis.line.y = element_line(color="black", size = .5), axis.ticks = element_line(size=0.5),axis.ticks.length = unit(.25, "cm") )
 p2 = p2 +  labs(y = "Run time (Hrs)", x='Number of parameters');
-grid.arrange(p1, p2, nrow=2, ncol=2)
+
+library(reshape2)
+newData[,"npars"] = npars;
+d = melt(newData, id.vars="npars")
+p3 = ggplot(d, aes(npars, value/3600), stat="identity");
+p3 = p3 + geom_jitter(alpha=0.4, position = position_jitter(w=0.2,h=0.1, seed=1), size=2);
+p3 = p3 +  theme(aspect.ratio = 1) + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank());
+p3 = p3 + theme_minimal();
+p3 = p3 + theme(axis.line.x = element_line(color="black", size = .5),
+                axis.line.y = element_line(color="black", size = .5), axis.ticks = element_line(size=0.5),axis.ticks.length = unit(.25, "cm") )
+p3 = p3 +  labs(y = "Run time (Hrs)", x='Number of parameters');
+cor.test(formula=~value+npars, data = d)
+grid.arrange(p1, p3, nrow=2, ncol=2) 
+
+out = list(timingData=d, allTiming = allTimingResults[,c("meanV", "SEV","npars")], 
+           allDurations=allNums);
+save(out,file=whatToRun);
+

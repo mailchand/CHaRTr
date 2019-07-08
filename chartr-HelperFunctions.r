@@ -11,30 +11,42 @@ returnListOfModels = function()
   modelList = c(
             "DDM",                     # -1
             "DDMSv",                   # -2
-            "DDMSvSt",                 # -3
-            "dDDMSvSt",                # -4
+            "DDMSvSz",                 # -3
+            "DDMSvSt",                 # -4
             "DDMSvSzSt",               # -5
-            "DDMSvSz",                 # -6
-            "cDDMSvSt",                # -7
-            "dDDMSv",                  # -8
-            "cfkDDMSvSt",              # -9
-            "dDDMSvSzSt",              # -10
-            "cfkDDMSvSzSt",            # -11
-            "cDDMSvSzSt",              # -12
+            
+            "cDDM",                    # -6
+            "cDDMSv",                  # -7
+            "cDDMSvSz",                # -8
+            "cDDMSvSt",                # -9
+            "cDDMSvSzSt",              # -10
+            
+            "dDDM",                    # -11
+            "dDDMSv",                  # -12
+            "dDDMSvSt",                # -13
+            "dDDMSvSzSt",              # -14
+            
+            "cfkDDMSvSt",              # -15
+            "cfkDDMSvSzSt",            # -16
+            
             "UGM",                     #  1
             "UGMSt",                   #  2 
             "UGMSv",                   #  3
-            "UGMSvSt",                 #  4  
-            "bUGMSv",                  #  5       
-            "bUGMSvSt",                #  6       
-            "bUGMSvSb",                #  7       
-            "bUGMSvSbSt",              #  8
-            "uDDMSvSb",                #  9 
-            "uDDMSv",                  #  10
-            "uDDMSvSbSt",              #  11 
-            "uDDMSvSt"                 #  12
+            "UGMSvSt",                 #  4
+            
+            "bUGM",                    #  5
+            "bUGMSv",                  #  6       
+            "bUGMSvSt",                #  7       
+            "bUGMSvSb",                #  8       
+            "bUGMSvSbSt",              #  9
+
+            "uDDM",                    #  10
+            "uDDMSv",                  #  11
+            "uDDMSvSb",                #  12
+            "uDDMSvSt",                #  13
+            "uDDMSvSbSt"              #  14 
   );
-  modelIds = c(seq(-1,-12), seq(1,12));
+  modelIds = c(seq(-1,-16), seq(1,14));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -160,26 +172,51 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax")
            print("Diffusion model, Variable Baseline, Variable Movement Time")
          },
-         DDMSvSzSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax","st0")
-           print("Diffusion model, Variable Baseline, Variable Movement Time")
-         },
-         ratcliff={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax","st0")
-           print("Ratcliff model with variable movement time")
-         },
          DDMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0")
            print("Diffusion model with some drift variance and variable movement time")
          },
+         DDMSvSzSt={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax","st0")
+           print("Diffusion model, Variable Baseline, Variable Movement Time")
+         },
+
+         ratcliff={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax","st0")
+           print("Ratcliff model with variable movement time")
+         },
+         
+         dDDM={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","sx","sy","delay")
+           print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
+         },
+         dDDMSv={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","sx","sy","delay")
+           print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
+         },
+         
          dDDMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          
-         dDDMSv={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","sx","sy","delay")
+         
+         dDDMSvSzSt={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","zmin","zmax")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
+         },
+         
+         cDDM={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
+         },
+         cDDMSv={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","lambda","aprime","k")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
+         },
+         cDDMSvSz={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","lambda","aprime","k","zmin","zmax")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
          cDDMSvSt={
@@ -187,27 +224,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
-         cfkDDMSvSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime")
-           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
-         },
-         
-         cfkDDMSvSzSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime","zmin","zmax")
-           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
-         },
-         
          cDDMSvSzSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime","k","zmin","zmax")
-           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
-         },
-         
-         cDDMSv={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","lambda","aprime","k")
-           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
-         },
-         cDDMSvSz={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","lambda","aprime","k","zmin","zmax")
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
@@ -224,10 +242,19 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
-         dDDMSvSzSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","zmin","zmax")
-           print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
+         cfkDDMSvSt={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
+         
+         cfkDDMSvSzSt={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime","zmin","zmax")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
+         },
+         
+       
+         
+   
          
          
          
@@ -247,6 +274,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          UGMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0")
            print("Urgency Gating, drift variance, variable residual movement time")
+         },
+         
+         bUGM={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept")
+           print("Urgency Gating with an intercept")           
          },
          bUGMSv={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept")
@@ -280,7 +312,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var")
            print("DDM with Urgency and no gating and fixed Ter")
          },
-         
+         uDDM={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var")
+           print("DDM with Urgency and no gating, constant slope, and fixed Ter")
+         }, 
+
          uDDMSv={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var")
            print("DDM with Urgency and no gating, constant slope, and fixed Ter")
@@ -465,6 +501,13 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            rts=(out$rt/1000) + Ter;
          },
          
+         bUGM={
+           out=.C("bUGM",z=z,v=v,aU=aU,aL=aL,timecons=timecons,
+                  usign=usign,intercept=intercept, s=stoch.s,dt=dt,
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000) + Ter;
+         },
          
          # DDM Eta UGM model with an intercept term for the urgency signal
          bUGMSv={
@@ -500,6 +543,12 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            rts=(out$rt/1000)+Ter;
          },
          
+         uDDM={
+           out=.C("uDDMSv",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
          
          # -------------------------------- Models without any variable movement time
          
@@ -545,6 +594,13 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          dDDMSv={
            out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=out$rt+Ter;
+           
+         },
+         dDDM={
+           out=.C("dDDM",z=z,v=v,delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
@@ -611,6 +667,14 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
          },
+         
+         cDDM={
+           out=.C("cDDMSv",z=z,v=v,lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=out$rt+Ter;
+         },
+         
          
          cDDMSvSz={
            out=.C("cDDMSvSz",zmin=zmin, zmax=zmax,v=v,eta=eta, lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,

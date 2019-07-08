@@ -8,12 +8,61 @@ source("chartr-HelperFunctions.r")
 source("chartr-ModelSelection.r")
 
 # load C functions for simulating various parameters
-dyn.load("chartr-ModelSpec.so")
+dyn.load("chartr-ModelSpecFast.so")
 # load RS2002 data sets to find suitable subjects
 
 useAIC = FALSE;
-whichDir = "caseStudy2";
-resultsDir = "_Fits/";
+
+
+whatToRun = "cs1, fast, 200, 5000"
+switch(whatToRun,
+       "cs1, slow, 400, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_Fits/"
+         runs = seq(6,10)+1;
+       },
+       "cs2, slow, 400, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_Fits/"
+         runs = seq(6,10);
+       },
+       "cs1, fast, 400, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5);
+       },
+       "cs2, fast, 400, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5);
+       },
+       "cs1, fast, 200, 10000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5)+5;
+       },
+       "cs2, fast, 200, 10000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5)+5;
+       },
+       "cs1, fast, 200, 5000"={
+         dataDir = "caseStudy1";
+         resultsDir = "caseStudy1_FastFits/"
+         runs = seq(1,5)+15;
+       },
+       "cs2, fast, 200, 5000"={
+         dataDir = "caseStudy2";
+         resultsDir = "caseStudy2_FastFits/"
+         runs = seq(1,5)+15;
+       }
+)
+
+
+
+
+
+whichDir =  dataDir;
 subjectDir = paste(getwd(),'/', whichDir,sep='')
 
 # set up plot for predicted distributions from the 
@@ -48,8 +97,8 @@ snams=names(data) ;
 nsubj=length(data);
 
 # Number of repeats of the fitting
-nreps=10;
-lets=letters[1:nreps];
+
+lets=letters[runs];
 
 # for now, only get reobj value (parameters later)
 landouts=array(dim=c(nsubj,length(usemodel)),dimnames=list(snams,usemodel))
@@ -73,7 +122,7 @@ for(s in snams) {
       
       fnam=paste(s,mod,l,sep="-")
       printFnam = fnam;
-      fnam=paste(subjectDir,resultsDir,fnam,sep='')
+      fnam=paste(resultsDir,fnam,sep='')
 
       if(!file.exists(fnam)) next else load(fnam)
       if(out$reobj>bestfit) 
@@ -88,7 +137,7 @@ for(s in snams) {
       # rm(fnam,out)
     }
     bestFitModel = paste(s,mod,uselet,sep="-");
-    bestFitModel = paste(subjectDir,resultsDir,bestFitModel,sep='')
+    bestFitModel = paste(resultsDir,bestFitModel,sep='')
     load(bestFitModel); 
     
     
@@ -143,6 +192,8 @@ if(useggplot)
   letList[S > 0.001] = "B"
   letList[1] = "A"
   
+  orderV = orderV[1:6];
+  letList = letList[orderV]
   
   dataFrame = data.frame(weights=weights[orderV], modelId = as.factor(modelId[orderV]),
                          categories=as.factor(letList))
@@ -151,7 +202,7 @@ if(useggplot)
   
   p2 = ggplot(dataFrame, aes(modelId,weights, fill=categories), stat="identity") + 
        geom_col(alpha=0.6) + coord_flip(ylim=c(0, round(max(1.1*weights),1)));
-  p2 = p2 + theme_minimal()+ ggtitle("Posterior Model Probabilities");
+  p2 = p2 + theme_minimal()+ ggtitle( whatToRun);
   
   p2 = p2 + theme(text = element_text(size=16),
                   axis.text.y = element_text(hjust=1, angle=0,
@@ -167,6 +218,10 @@ if(useggplot)
   
   
   grid.arrange(p2,nrow=1,ncol=1)
+  
+  save(file=paste(whatToRun,"_figure"), out=p2);
+  
+  
 }else
 {
   par(mfrow=c(1,2))
