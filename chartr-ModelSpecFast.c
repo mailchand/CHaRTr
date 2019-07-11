@@ -746,6 +746,61 @@ int cDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *lambda,
   PutRNGstate();
 }
 
+int cfkDDM(double *z, double *v,  double *lambda, double *aU, double *aL, double *aprime, 
+             double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep, 
+             int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,samplev;
+  double upper, lower, currTime;
+  int N,i,timeStep,MaxTimeStep;
+  double kFixed=3.0;
+  
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      //       x = x+(*dt)*(*v)+rhs*norm_rand();
+      // Scaling term according to Ditterich 2006a
+      // Using formulation from Ditterich 2006a, multiply by an urgency signal
+      // samplev=(*v)*gamma + (*eta)*norm_rand();
+      currTime = timeStep*(*dt);
+      lower = *aU*(1 - exp(-pow((currTime)/(*lambda),kFixed)))*(.5 - *aprime);
+      upper = *aU - lower; 
+      
+      // This allows the specification of an increase in the accumulated evidence over time.
+      x = x+(*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
+      
+      if (x>=upper) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=lower) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
+
+
 int cfkDDMSv(double *z, double *v, double *eta, double *lambda, double *aU, double *aL, double *aprime, 
            double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep, 
            int *rangeLow, int *rangeHigh, double *randomTable)
