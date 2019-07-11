@@ -9,7 +9,7 @@ source("chartr-PlotUtils.r")
 source("chartr-ModelSelection.r")
 
 # load C functions
-dyn.load("chartr-ModelSpec.so")
+dyn.load("chartr-ModelSpecFast.so")
 
 # load RS2002 data sets to find suitable subjects
 
@@ -91,7 +91,7 @@ for(s in snams) {
     numpars[mod] = length(out$pars)
     Temp = calcIC(bestfit, numpars[mod], sum(data[[s]]$n))
     landAIC[s,mod] = Temp$BIC;
-    logLike[s,mod] = -2*out$reobj;
+    logLike[s,mod] = out$reobj;
     
     rm(out)
     rm(bestfit,uselet)
@@ -122,6 +122,12 @@ predrts=array(dim=c(nq,2,nd,length(usemodel),nsubj),dimnames=list(qps,c("cor","e
                                                                   usemodel,snams))
 predps=array(dim=c(nd,length(usemodel),nsubj),dimnames=list(NULL,usemodel,snams))
 # predictions for the fitted models
+
+
+interval=0.00001;
+LUT=qnorm(seq(interval,1-interval,interval));
+nLUT = length(LUT);
+
 for(mod in usemodel) {
   m=paste("model",mod,sep="-")
   cat("\n   ",m,"\n")
@@ -171,7 +177,7 @@ for(mod in usemodel) {
                        zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], 
                        sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
                        aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
-                       n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM)
+                       n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM, FASTRAND=TRUE, nLUT=nLUT, LUT=LUT)
       predps[v,mod,s]=(table(tmp$resps)/nmc)["1"]
       predrts[,"cor",v,mod,s]=quantile(tmp$rt[tmp$resps==1],probs=qps)
       predrts[,"err",v,mod,s]=quantile(tmp$rt[tmp$resps==2],probs=qps)
