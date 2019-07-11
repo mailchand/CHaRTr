@@ -796,7 +796,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # -----------------------------------------------cfkDDM
          # Now do all the Collapsing bounds without the variabililty in nondecision-time
          cfkDDM={
-           out=.C("cfkDDMSv",z=z,v=v, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
+           out=.C("cfkDDM",z=z,v=v, lambda=lambda, aU=aU,aL=aL,aprime=aprime,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
