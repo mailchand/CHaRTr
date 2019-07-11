@@ -231,7 +231,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          cDDMSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k", "st0")
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
@@ -272,6 +272,10 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
          },
          
+         cfkDDMSt={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0","lambda","aprime")
+           print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
+         },
          cfkDDMSvSzSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime","zmin","zmax")
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
