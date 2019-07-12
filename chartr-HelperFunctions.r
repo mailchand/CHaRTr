@@ -40,7 +40,7 @@ returnListOfModels = function()
             "UGMSvSt",                 #  4
             
             "bUGM",                    #  5
-            "buGMSt",                  #  6
+            "bUGMSt",                  #  6
             "bUGMSv",                  #  7       
             "bUGMSvSt",                #  8       
             "bUGMSvSb",                #  9       
@@ -584,7 +584,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
-                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          
@@ -593,7 +594,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            out=.C("bUGM",z=z,v=v,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
-                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
@@ -613,7 +615,8 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
-                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
