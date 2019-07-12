@@ -645,9 +645,10 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          },
          
          uDDMSt={
-           out=.C("uDDM",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+           out=.C("uDDM",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
-                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          
