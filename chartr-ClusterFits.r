@@ -137,8 +137,12 @@ for(subjId in seq(4,length(listOfSubjects)))
                                 parallelType=1,reltol=1e-6,steptol=200,
                                 # load objects used for fitting, for parallelType==1
                                 parVar=list("dat","lowers","uppers","nmc","contp","ncohs", "fitUGM","pred",
-                                            "qps", "stepsize","stoch.s","timecons","usign","parnames","maxTimeStep","maxits","nparticles","gub",
-                                            "diffusionC","makeparamlist","contaminantmixresps","qmpouts","getpreds","obj","returnListOfModels")
+                                            "qps", "stepsize","stoch.s","timecons",
+                                            "usign","parnames","maxTimeStep","maxits",
+                                            "nparticles","gub",
+                                            "diffusionC","makeparamlist",
+                                            "contaminantmixresps","qmpouts",
+                                            "getpreds","obj","returnListOfModels")
                                 # same again, but for functions
         ));
     cat(paste("\n",dirs,"dataset:",subjnam,", model:",model,fnam,"\n\n",sep=" "))
