@@ -51,7 +51,7 @@ listOfSubjects = subjs;
 contp = list(p=0)  # if estcontp==FALSE, give proportion of contaminant responses
 maxits = 750  # number of iterations of DEoptim to run
 nparticles = 400  # number of particles/chains for DEoptim
-nmc =10000  # number of MC samples for simulating the models at each iteration
+nmc = 10000  # number of MC samples for simulating the models at each iteration
 estcontp=FALSE  # estimate contaminant mixture probability from data. usually set to false
 
 
@@ -66,7 +66,7 @@ gub=4
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 
-for(subjId in seq(1,length(listOfSubjects)))
+for(subjId in seq(4,length(listOfSubjects)))
 {
   subjnam=listOfSubjects[subjId]
   for(modelId in seq(1,length(modelList)))
@@ -80,7 +80,7 @@ for(subjId in seq(1,length(listOfSubjects)))
     load(paste(dirs,"/",subjnam,sep=""))
     model= modelList[modelId]
     
-    saveFileName=paste(dirs,"_Fits/",subjnam,"-",model,"-",fnam,sep="")
+    saveFileName=paste(dirs,"_FastFits/",subjnam,"-",model,"-",fnam,sep="")
     if(!file.exists((saveFileName))){
     cat(paste("\n",dirs,"dataset:",subjnam,", \n model:",model,"\n Filename", fnam,"\n\n",sep=" "))  
     
@@ -184,7 +184,7 @@ for(subjId in seq(1,length(listOfSubjects)))
              obj=-tmp$optim$bestval,reobj=-reobj, reobjperpoint=reobjperpoint, 
              lower=lowers, upper=uppers,
              timings = timings, timingLogLst = timingLogLst, timingLogTxt = timingLogTxt, 
-             rawTimingsTic = rawTimingsTic, rawTimingsToc = rawTimingsToc);
+             rawTimingsTic = rawTimingsTic, rawTimingsToc = rawTimingsToc, nparticles=nparticles, nmc=nmc);
     
     
     save(out,file=saveFileName)
