@@ -1,4 +1,4 @@
-dyn.load("chartr-ModelSpecFast.so")
+dyn.load("chartr-ModelSpec.so")
 
 # 24 models 
 #' Generate a list of models to be used for fitting RTs and Choice
@@ -471,7 +471,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 #' diffusionC(v=0.4, eta=0.05, aU=0.1,aL=0, Ter=0.3,z=0.05,nmc=1000,dt=0.001,stoch.s=0.1,maxTimeStep=4,fitUGM=-12)
 diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,stoch.s,
                     maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, 
-                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE, FASTRAND=TRUE,
+                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, 
+                    VERBOSE=FALSE, FASTRAND=FALSE,
                     nLUT=nLUT, LUT = LUT) 
   # v - 
   # eta - 

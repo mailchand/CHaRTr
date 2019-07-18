@@ -155,6 +155,61 @@ int DDMSv(double *z, double *v, double *eta, double *aU, double *aL, double *s,
 }
 
 
+int dDDM(double *z, double *v, double *sx, double *sy, double *delay, double *aU, double *aL,
+           double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,samplev, gamma;
+  double term1, term2;
+  int N,i,timeStep,MaxTimeStep, currTime;
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      //       x = x+(*dt)*(*v)+rhs*norm_rand();
+      currTime = timeStep*(*dt);
+      term1 = exp((*sx)*(currTime-*delay));
+      term2 = exp(-(*sx)*(*delay));
+      
+      // Scaling term according to Ditterich 2006a
+      // Using formulation from Ditterich 2006a, multiply by an urgency signal
+      // samplev=(*v)*gamma + (*eta)*norm_rand();
+      
+      gamma = ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
+      
+      // This allows the specification of an increase in the accumulated evidence over time.
+      // There is some lack of clarity in whether the urgency signal multiplies 
+      // both the evidence and the noise or just the 
+      // evidence, we shall now multiply by both.
+      x = x+ ((*dt)*samplev+rhs*norm_rand())*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
+
 // step size here is 0.001 ms
 int dDDMSv(double *z, double *v, double *eta, double *sx, double *sy, double *delay, double *aU, double *aL,
                     double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
@@ -313,6 +368,51 @@ int uDDMSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *t
   PutRNGstate();
 }
 
+int uDDM(double *z, double *v, double *aU, double *aL, double *timecons, 
+           double *usign, double *intercept, double *usign_var,
+           double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,xu,samplev, gamma;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  
+  /* Convert some double inputs to integer types. */
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  
+  
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      // Nothing fancy in this signal except a simple linearly increasing time varying signal with an intercept
+      // and a slope term.
+      gamma = (*intercept + *usign_var*timeStep*(*dt));
+      // This allows the specification of an increase in the momentary evidence over time.
+      x = x+ ((*dt)*samplev+rhs*norm_rand())*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
 // Like the UGM but no filtering and no time constants.
 int uDDMSv(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
                         double *usign, double *intercept, double *usign_var,
@@ -349,6 +449,55 @@ int uDDMSv(double *z, double *v,double *eta, double *aU, double *aL, double *tim
         break ;
       }
       if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
+int cDDM(double *z, double *v, double *lambda, double *aU, double *aL, double *aprime, 
+           double *k, double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,samplev;
+  double upper, lower;
+  int N,i,timeStep,MaxTimeStep;
+  double currTime;
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      
+      // Chand - 2018-08-17 noticed error in the implementation, used timeStep instead of dt, different timebases
+      // Chand - 2018-08-28 - noticed that a' could sometimes be greater than aU which sucks, so 
+      // Ended up making it a multiplier of aU and a max of 0.5 to ensure collapsing values
+      
+      currTime = timeStep*(*dt);
+      lower = *aU*(1 - exp(-pow((currTime)/(*lambda),*k)))*(.5 - *aprime);
+      upper = *aU - lower; 
+      
+      // This allows the specification of an increase in the accumulated evidence over time.
+      x = x+(*dt)*samplev+rhs*norm_rand();
+      
+      if (x>=upper) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=lower) {
         response[i]=(double) 2.0 ; 
         break ;
       }
@@ -456,6 +605,57 @@ int cDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *lambda,
   }
   PutRNGstate();
 }
+
+
+int cfkDDM(double *z, double *v, double *lambda, double *aU, double *aL, double *aprime, 
+             double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,samplev;
+  double upper, lower, currTime;
+  int N,i,timeStep,MaxTimeStep;
+  double kFixed=3.0;
+  
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      //       x = x+(*dt)*(*v)+rhs*norm_rand();
+      // Scaling term according to Ditterich 2006a
+      // Using formulation from Ditterich 2006a, multiply by an urgency signal
+      // samplev=(*v)*gamma + (*eta)*norm_rand();
+      currTime = timeStep*(*dt);
+      lower = *aU*(1 - exp(-pow((currTime)/(*lambda),kFixed)))*(.5 - *aprime);
+      upper = *aU - lower; 
+      
+      // This allows the specification of an increase in the accumulated evidence over time.
+      x = x+(*dt)*samplev+rhs*norm_rand();
+      
+      if (x>=upper) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=lower) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
 
 int cfkDDMSv(double *z, double *v, double *eta, double *lambda, double *aU, double *aL, double *aprime, 
            double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
@@ -622,6 +822,51 @@ int UGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *time
       x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*norm_rand());
       // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
       xu = x * timeStep*(*dt)*(*usign);  // urgency is multiplicative
+      if (xu>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (xu<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
+int bUGM(double *z, double *v, double *aU, double *aL, double *timecons, 
+           double *usign, double *intercept, double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,alpha,xu,samplev;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  
+  /* Convert some double inputs to integer types. */
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  // weight for exponentially-weighted moving average
+  // alpha=(*dt)/((*dt)+(*timecons));
+  alpha=(*timecons)/((*timecons)+(*dt));
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      //       x = x+(*dt)*(*v)+rhs*norm_rand();   // DDM model
+      // filtered signal from previous step + input from current step
+      //       x = alpha*x + (1-alpha)*((*dt)*(*v) + rhs*norm_rand());
+      x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*norm_rand());
+      // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
+      xu = x * (*intercept + timeStep*(*dt)*(*usign));  // urgency is multiplicative
       if (xu>=*aU) {
         response[i]=(double) 1.0 ; 
         break ;
