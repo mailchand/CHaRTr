@@ -11,7 +11,7 @@ VERBOSE = TRUE;
 
 dataDir = "caseStudy2/"
 resultsDir = 'caseStudy2_FastFits/'
-subjnam = "Subj4"
+subjnam = "Subj2"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -31,7 +31,7 @@ modelList = unname(allValidModels$modelNames)
 modelOutput=list()
 # load each model's output and store in modelOutput
 nreps = 5;
-allRuns = letters[c(1:nreps)+15];
+allRuns = letters[c(1:nreps)+5];
 tempReObj = seq(1,length(allRuns))
 
 modelResults = data.frame(matrix(0,length(modelList), nreps+1));

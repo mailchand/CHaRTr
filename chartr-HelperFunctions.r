@@ -496,8 +496,11 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
   if(FASTRAND)
     dyn.load("chartr-ModelSpecFast.so")
   else
+  {
     dyn.load("chartr-ModelSpec.so")
-  
+    # print("Slow Rand")
+  }
+    
   rts <- resps <- numeric(nmc)
   
   listOfModels = returnListOfModels()
