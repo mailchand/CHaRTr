@@ -11,7 +11,7 @@ library(tictoc)
 source("chartr-FitRoutines.r")
 source("chartr-HelperFunctions.r")
 
-jobnum=6
+jobnum=1
 
 set.seed(jobnum)
 fnam = letters[jobnum];

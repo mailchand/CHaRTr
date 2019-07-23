@@ -11,20 +11,20 @@ source("chartr-ModelSelection.r")
 dyn.load("chartr-ModelSpecFast.so")
 # load RS2002 data sets to find suitable subjects
 
-useAIC = FALSE;
+useAIC = TRUE;
 
 
-whatToRun = "cs1, fast, 200, 5000"
+whatToRun = "cs2, slow, 400, 10000"
 switch(whatToRun,
        "cs1, slow, 400, 10000"={
          dataDir = "caseStudy1";
          resultsDir = "caseStudy1_Fits/"
-         runs = seq(6,10)+1;
+         runs = seq(5,9)-4;
        },
        "cs2, slow, 400, 10000"={
          dataDir = "caseStudy2";
          resultsDir = "caseStudy2_Fits/"
-         runs = seq(6,10);
+         runs = seq(1,5);
        },
        "cs1, fast, 400, 10000"={
          dataDir = "caseStudy1";
@@ -73,7 +73,7 @@ qps=seq(.1,.9,.2) ;
 nq=length(qps)
 
 fnams=dir(subjectDir)
-fnams = fnams[c(1,2,3,4,5)]
+fnams = fnams[c(1,2)]
 data=list()
 
 # For each subject in the list of subjects to plot
@@ -188,12 +188,12 @@ if(useggplot)
   
   S = weights[orderV]
   letList = letters[1:length(modelId)];
-  letList[S < 0.001] = "C"
-  letList[S > 0.001] = "B"
+  letList[S < 1/36] = "C"
+  letList[S > 1/36] = "B"
   letList[1] = "A"
   
-  orderV = orderV[1:6];
-  letList = letList[orderV]
+  #orderV = orderV[1:6];
+  #letList = letList[orderV]
   
   dataFrame = data.frame(weights=weights[orderV], modelId = as.factor(modelId[orderV]),
                          categories=as.factor(letList))
