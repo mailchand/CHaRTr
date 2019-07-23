@@ -10,8 +10,8 @@ VERBOSE = TRUE;
 # emphasis remains on the second step. 
 
 dataDir = "caseStudy2/"
-resultsDir = 'caseStudy2_FastFits/'
-subjnam = "Subj2"
+resultsDir = 'caseStudy2_Fits/'
+subjnam = "Subj1"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -31,7 +31,7 @@ modelList = unname(allValidModels$modelNames)
 modelOutput=list()
 # load each model's output and store in modelOutput
 nreps = 5;
-allRuns = letters[c(1:nreps)+5];
+allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 
 modelResults = data.frame(matrix(0,length(modelList), nreps+1));
@@ -92,7 +92,7 @@ for(b in seq(1,length(modelList)))
 s = order(-modelResults[,"best"])
 modelResults = modelResults[s,]
 
-useggplot = TRUE;
+useggplot =TRUE;
 
 if(useggplot)
 {
