@@ -11,7 +11,7 @@ source("chartr-ModelSelection.r")
 dyn.load("chartr-ModelSpecFast.so")
 # load RS2002 data sets to find suitable subjects
 
-useAIC = TRUE;
+useAIC = FALSE;
 
 
 whatToRun = "cs2, slow, 400, 10000"
@@ -24,7 +24,7 @@ switch(whatToRun,
        "cs2, slow, 400, 10000"={
          dataDir = "caseStudy2";
          resultsDir = "caseStudy2_Fits/"
-         runs = seq(1,5);
+         runs = seq(1,5)+5;
        },
        "cs1, fast, 400, 10000"={
          dataDir = "caseStudy1";
@@ -73,7 +73,7 @@ qps=seq(.1,.9,.2) ;
 nq=length(qps)
 
 fnams=dir(subjectDir)
-fnams = fnams[c(1,2)]
+fnams = fnams[c(1,2,3,4,5)]
 data=list()
 
 # For each subject in the list of subjects to plot

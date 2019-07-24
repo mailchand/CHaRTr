@@ -45,7 +45,7 @@ if(RS2002)
   usemodel = c("DDMSvSzSt","uDDMSvSb","bUGMSvSb","uDDMSvSt","bUGMSvSt")
 }else
 {
-    usemodel = c("DDM","DDMSvSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt","cDDMSvSt")
+    usemodel = c("DDM","DDMSvSt","DDMSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt")
 }
 #
 snams=names(data) ; 
@@ -56,6 +56,8 @@ lets=letters[seq(1,nreps)];
 # for now, only get reobj value (parameters later)
 landouts=array(dim=c(nsubj,length(usemodel)),dimnames=list(snams,usemodel))
 landAIC=array(dim=c(nsubj,length(usemodel)),dimnames=list(snams,usemodel))
+landBIC=array(dim=c(nsubj,length(usemodel)),dimnames=list(snams,usemodel))
+
 logLike = landAIC;
 
 landpars=list(stone=list(),stoneUGM=list())
@@ -90,7 +92,8 @@ for(s in snams) {
     landpars[[mod]]=rbind(landpars[[mod]],out$pars)
     numpars[mod] = length(out$pars)
     Temp = calcIC(bestfit, numpars[mod], sum(data[[s]]$n))
-    landAIC[s,mod] = Temp$BIC;
+    landAIC[s,mod] = Temp$AIC;
+    landBIC[s,mod] = Temp$BIC;
     logLike[s,mod] = out$reobj;
     
     rm(out)
@@ -227,8 +230,12 @@ for(s in usesubj) {
          xlim=c(0,1),ylab="",xlab="",axes=F)
     axis(side=1,at=xaxs,NA,tcl=-.3, lwd=2)
     axis(side=2,at=yaxs,NA,tcl=-.3, lwd=2)
-    text(x=1.05,y=max(as.numeric(yaxs)),labels=paste('BIC:',round(landAIC[s,mod]-landAIC[s,usemodel[1]]),sep=''),pos=2,cex=labcexs*1.2)
-    text(x=.5,y=max(as.numeric(yaxs)),labels=paste('LL:',round(logLike[s,mod]-logLike[s,usemodel[1]]),sep=''),pos=2,cex=labcexs*1.2)
+    text(x=1.05,y=max(as.numeric(yaxs))-0.03,labels=paste('AIC:',round(landAIC[s,mod]-landAIC[s,usemodel[1]]),sep=''),pos=2,cex=labcexs*1.2)
+    text(x=1.05,y=max(as.numeric(yaxs))-.06,labels=paste('BIC:',round(landBIC[s,mod]-landBIC[s,usemodel[1]]),sep=''),pos=2,cex=labcexs*1.2)
+    
+    # text(x=1.05,y=max(as.numeric(yaxs)),labels=paste('LL:',round(logLike[s,mod]-logLike[s,usemodel[1]]),sep=''),pos=2,cex=labcexs*1.2)
+    text(x=1.05,y=max(as.numeric(yaxs)),labels=paste('LL:',round(logLike[s,mod]),sep=''),pos=2,cex=labcexs*1.2)
+    
     if(which(s==usesubj)==1)
         mtext(side=3,mod,cex=labcexs*0.8,line=-4,las=1, at=0.3)
     mtext(side=2,at=yaxs,yaxs,line=.8,cex=axcexs,las=1)

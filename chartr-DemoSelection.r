@@ -9,9 +9,9 @@ VERBOSE = TRUE;
 # We could probably make a simpler version of this step, so that the 
 # emphasis remains on the second step. 
 
-dataDir = "caseStudy2/"
-resultsDir = 'caseStudy2_Fits/'
-subjnam = "Subj1"
+dataDir = "caseStudy1/"
+resultsDir = 'caseStudy1_Fits/'
+subjnam = "Subj3"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
