@@ -27,7 +27,7 @@ args=(commandArgs(TRUE));
 if(length(args)==0){
     print("No arguments supplied.")
     ##supply default values
-    folder="caseStudy1"
+    folder="RS2002"
 }else{
     for(i in 1:length(args)){
          eval(parse(text=args[[i]]))
@@ -66,7 +66,8 @@ gub=4
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 
-for(subjId in seq(1,length(listOfSubjects)))
+
+for(subjId in seq(2,length(listOfSubjects)))
 {
   subjnam=listOfSubjects[subjId]
   for(modelId in seq(1,length(modelList)))
@@ -91,7 +92,7 @@ for(subjId in seq(1,length(listOfSubjects)))
     
     # make parameter vector - different scaling for Stone and Stone+UGM
     #    order: drifts (7), eta, upper boundary, Ter
-    nstart=1;
+    nstart=2;
     nds=length(ncohs)    # v1 is 0% coherence, will be set to 0 drift in internal function
     
     
