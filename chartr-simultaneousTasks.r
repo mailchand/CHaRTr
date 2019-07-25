@@ -73,7 +73,7 @@ for(subjId in seq(1,length(listOfSubjects)))
     
     # make parameter vector - different scaling for Stone and Stone+UGM
     #    order: drifts (7), eta, upper boundary, Ter
-    nstart=1;
+    nstart=2;
     nds=length(ncohs)    # v1 is 0% coherence, will be set to 0 drift in internal function
     
     
