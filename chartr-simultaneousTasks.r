@@ -19,7 +19,7 @@ fnam = letters[jobnum];
 
 # source the fitting code files
 
-dirs="caseStudy2"  # directory name of data files to fit
+dirs="RS2002"  # directory name of data files to fit
 subjs=dir(dirs); 
 nsubj=length(subjs) 
 
