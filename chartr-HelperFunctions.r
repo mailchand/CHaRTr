@@ -897,7 +897,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
 } 
 
 
-makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE) 
+makeparamlist=function(params,fitUGM,ncohs, zeroCoh=TRUE) 
 {
   # transform parameter vector from obj into usable form for getpreds
   #   different parameter settings for DDM and DDM+UGM models
@@ -950,7 +950,8 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
 #
 #
 # 
-simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabels = FALSE, plotData=TRUE, FASTRAND=TRUE){
+simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabels = FALSE, plotData=TRUE, 
+                       FASTRAND=TRUE){
   # model specifies the model to simulate
   # ps passes in parameters
   # nmc and maxiter are parameters for the simulation
