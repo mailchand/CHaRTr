@@ -32,9 +32,10 @@ This command compiles chartr-ModelSpec.c and then link the output object file in
 If the compilation is successful you should see something like this on your terminal
 
 ```
-gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG -fpic -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2  -g -c chartr-ModelSpec.c -o chartr-modelspec.o
-
-g++ -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o chartr-ModelSpec.so chartr-ModelSpec.o -L/usr/lib/R/lib -lR
+gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG -fpic -g -O2 -fstack-protector-strong -Wformat -Werror=format-security 
+Wdate-time -D_FORTIFY_SOURCE=2  -g -c chartr-ModelSpec.c -o chartr-modelspec.o
+g++ -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o chartr-ModelSpec.so chartr-ModelSpec.o 
+L/usr/lib/R/lib -lR
 
 ```
 
