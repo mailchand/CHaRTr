@@ -43,6 +43,8 @@ The implementation has not been tested on windows.
 
 ## Packages
 
-For smooth operation of ChaRTr -- Many packages are needed.
+For smooth operation of ChaRTr, you will need to install the following packages -- devtools, reshape2, ggplot2, ggthemes, DEoptim, gridExtra.
+
+Typically the install.packages command in R will help you install these packages. The packages often have dependencies on openssl and curl and this may need installation using either apt-get in Linux or homebrew in Mac.
 
 
