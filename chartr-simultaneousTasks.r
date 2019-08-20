@@ -62,7 +62,7 @@ for(subjId in seq(1,length(listOfSubjects)))
     load(paste(dirs,"/",subjnam,sep=""))
     model= modelList[modelId]
     
-    saveFileName=paste(dirs,"_FastFits/",subjnam,"-",model,"-",fnam,sep="")
+    saveFileName=paste(dirs,"_Fits/",subjnam,"-",model,"-",fnam,sep="")
     if(!file.exists((saveFileName))){
     cat(paste("\n",dirs,"dataset:",subjnam,", \n model:",model,"\n Filename", fnam,"\n\n",sep=" "))  
     
