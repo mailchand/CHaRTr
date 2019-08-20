@@ -897,7 +897,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
 } 
 
 
-makeparamlist=function(params,fitUGM,ncohs, zeroCoh=TRUE) 
+makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE) 
 {
   # transform parameter vector from obj into usable form for getpreds
   #   different parameter settings for DDM and DDM+UGM models

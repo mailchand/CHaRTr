@@ -19,7 +19,7 @@ fnam = letters[jobnum];
 
 # source the fitting code files
 
-dirs="RS2002"  # directory name of data files to fit
+dirs="colgrid"  # directory name of data files to fit
 subjs=dir(dirs); 
 nsubj=length(subjs) 
 
@@ -32,7 +32,7 @@ listOfSubjects = subjs;
 # Setup some baseline parameters
 contp = list(p=0)  # if estcontp==FALSE, give proportion of contaminant responses
 maxits = 750  # number of iterations of DEoptim to run
-nparticles = 400  # number of particles/chains for DEoptim
+nparticles = 200  # number of particles/chains for DEoptim
 nmc =10000  # number of MC samples for simulating the models at each iteration
 estcontp=FALSE  # estimate contaminant mixture probability from data. usually set to false
 
@@ -73,7 +73,7 @@ for(subjId in seq(1,length(listOfSubjects)))
     
     # make parameter vector - different scaling for Stone and Stone+UGM
     #    order: drifts (7), eta, upper boundary, Ter
-    nstart=2;
+    nstart=1;
     nds=length(ncohs)    # v1 is 0% coherence, will be set to 0 drift in internal function
     
     

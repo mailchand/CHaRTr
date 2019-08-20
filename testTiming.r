@@ -11,17 +11,21 @@ allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 usemodel = modelList
 
+whatToRun = "cs2, slow, 400, 10000"
+whatToRun = "cs2, fast, 400, 10000"
+whatToRun = "cs2, fast, 200, 10000"
 whatToRun = "cs2, fast, 200, 5000"
+
 switch(whatToRun,
        "cs1, slow, 400, 10000"={
          dataDir = "caseStudy1";
          resultsDir = "caseStudy1_Fits/"
-         runs = seq(6,10)+1;
+         runs = seq(1,5);
        },
        "cs2, slow, 400, 10000"={
          dataDir = "caseStudy2";
          resultsDir = "caseStudy2_Fits/"
-         runs = seq(6,10);
+         runs = seq(1,5);
        },
        "cs1, fast, 400, 10000"={
          dataDir = "caseStudy1";
@@ -66,6 +70,7 @@ timingResults = data.frame(matrix(0,length(modelList), nreps+1));
 
 snams = dir(dataDir)
 snams = c('Subj1','Subj2','Subj3','Subj4','Subj5')
+# snams = c('Subj2');
 
 allTimingResults = data.frame(matrix(0,length(modelList),length(snams)));
 colnames(allTimingResults) = snams;
@@ -112,6 +117,8 @@ for(s in snams)
       {
         
         load(fileName)
+        
+     
         
         currTime = unname(out$timings[2])
         timingResults[model, m] = currTime
@@ -163,7 +170,6 @@ for(s in snams)
         cnt = cnt +1 
   }
 }
-
 
 rownames(allTimingResults) = rownames(timingResults)
 

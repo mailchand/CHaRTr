@@ -9,9 +9,9 @@ VERBOSE = TRUE;
 # We could probably make a simpler version of this step, so that the 
 # emphasis remains on the second step. 
 
-dataDir = "caseStudy1/"
-resultsDir = 'caseStudy1_Fits/'
-subjnam = "Subj3"
+dataDir = "RS2002/"
+resultsDir = 'RS2002_Fits/'
+subjnam = "n"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -21,12 +21,14 @@ allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 
 # Use for figures 9a, b in the paper
-#modelList = c("DDM", "DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
-#             "cDDMSvSzSt", "cfkDDMSvSzSt", "cDDMSvSt", "cfkDDMSvSt",
-#            "uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
+#modelList = c("DDM", "DDMSt","DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
+#             "cDDM","cDDMSvSt", "cDDMSvSzSt","cDDMSv", "cDDMSt",
+#             "cfkDDM",  "cfkDDMSt", "cfkDDMSvSzSt", "cfkDDMSvSt",
+#            "uDDM", "uDDMSt","uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
 
-# modelList = c('DDM','DDMSvSz','DDMSv','UGM','bUGMSvSb','UGMSv','bUGMSv','UGMSt',
-#                'bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
+#modelList = c('DDM','DDMSt','DDMSvSz','DDMSv','UGM','bUGM', 'bUGMSt', 
+  #            'bUGMSvSb','UGMSv','bUGMSv','UGMSt',
+#              'bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
