@@ -11,20 +11,30 @@ source("chartr-ModelSelection.r")
 dyn.load("chartr-ModelSpecFast.so")
 # load RS2002 data sets to find suitable subjects
 
-useAIC = FALSE;
+useAIC = TRUE;
+
+ whatToRun = "cs1, slow, 400, 10000"
+#whatToRun = "cs1, fast, 400, 10000"
+#whatToRun = "cs1, fast, 200, 10000"
+#whatToRun = "cs1, fast, 200, 5000"
 
 
 whatToRun = "cs2, slow, 400, 10000"
+whatToRun = "cs2, fast, 400, 10000"
+whatToRun = "cs2, fast, 200, 10000"
+whatToRun = "cs2, fast, 200, 5000"
+
+
 switch(whatToRun,
        "cs1, slow, 400, 10000"={
          dataDir = "caseStudy1";
          resultsDir = "caseStudy1_Fits/"
-         runs = seq(5,9)-4;
+         runs = seq(1,5);
        },
        "cs2, slow, 400, 10000"={
          dataDir = "caseStudy2";
          resultsDir = "caseStudy2_Fits/"
-         runs = seq(1,5)+5;
+         runs = seq(1,5);
        },
        "cs1, fast, 400, 10000"={
          dataDir = "caseStudy1";
@@ -113,6 +123,10 @@ modelOutput=list()
 VERBOSE = TRUE;
 # Load each and every model, check which model fit is best. Use best fitting model
 for(s in snams) {  
+  
+  lets = letters[runs];
+
+
   for(mod in usemodel) {
     if(VERBOSE)
       cat(sprintf("\n%15s: ", mod))
@@ -192,8 +206,10 @@ if(useggplot)
   letList[S > 1/36] = "B"
   letList[1] = "A"
   
-  #orderV = orderV[1:6];
-  #letList = letList[orderV]
+  #letList = letList[orderV];
+  
+  orderV = orderV[1:6];
+  letList = c("A","B","B","B","B","B")
   
   dataFrame = data.frame(weights=weights[orderV], modelId = as.factor(modelId[orderV]),
                          categories=as.factor(letList))

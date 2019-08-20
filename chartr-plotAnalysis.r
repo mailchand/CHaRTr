@@ -13,13 +13,13 @@ dyn.load("chartr-ModelSpecFast.so")
 
 # load RS2002 data sets to find suitable subjects
 
-dataDir = "caseStudy1";
-resultsDir = "../caseStudy1_Fits"
+dataDir = "RS2002";
+resultsDir = "../RS2002_Fits"
 
 
 
 setwd(dataDir)
-RS2002 =  FALSE;
+RS2002 =  TRUE;
 
 
 # set up plot for predicted distributions from the 3x3 of changing drift rate and changing threshold
@@ -27,7 +27,7 @@ par(mfrow=c(1,2),mar=c(4,4,2,1))
 qps=seq(.1,.9,.2) ; nq=length(qps)
 fnams=dir()
 # fnams = fnams[c(1,2,3)]
-fnams = fnams[c(1,3)]
+fnams = fnams[c(1,2)]
 data=list()
 for(s in fnams) {
   load(s)
@@ -43,6 +43,8 @@ setwd(resultsDir);
 if(RS2002)
  {
   usemodel = c("DDMSvSzSt","uDDMSvSb","bUGMSvSb","uDDMSvSt","bUGMSvSt")
+  # usemodel = c("DDMSvSzSt","UGMSt","bUGMSt","uDDMSt");
+  #usemodel = c("DDMSt","bUGMSt","uDDMSt")
 }else
 {
     usemodel = c("DDM","DDMSvSt","DDMSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt")

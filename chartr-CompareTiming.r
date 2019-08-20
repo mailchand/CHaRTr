@@ -2,7 +2,7 @@
 
 
 library(reshape2)
-load("cs2, slow, 400, 10000")
+load("cs1, slow, 400, 10000")
 d1 = out$timingData;
 d1[,"type"] = "Slow, 400, 10000"
 sumData1 = out$allTiming;
@@ -14,7 +14,7 @@ colnames(totalTime) = "Slow, 400, 10000";
 
 S = data.frame("Slow, 400, 10000" = out$allTiming$meanV)
 
-load("cs2, fast, 400, 10000")
+load("cs1, fast, 400, 10000")
 d2 = out$timingData;
 d2[,"type"] = "Fast, 400, 10000"
 sumData2 = out$allTiming;
@@ -24,7 +24,7 @@ S = cbind(S, "Fast_400_10000" = out$allTiming$meanV)
 totalTime[,"Fast, 400, 10000"] = c(mean(as.matrix(out$allDurations)), 
                                    sd(as.matrix(out$allDurations))/sqrt(length(as.matrix(out$allDurations))));
 
-load("cs2, fast, 200, 10000");
+load("cs1, fast, 200, 10000");
 d3 = out$timingData;
 d3[,"type"] = "Fast, 200, 10000"
 sumData3 = out$allTiming;
@@ -36,7 +36,7 @@ totalTime[,"Fast, 200, 10000"] = c(mean(as.matrix(out$allDurations)),
                                  sd(as.matrix(out$allDurations))/sqrt(length(as.matrix(out$allDurations))));
 
 
-load("cs2, Fast, 200, 5000");
+load("cs1, Fast, 200, 5000");
 d4 = out$timingData;
 d4[,"type"] = "Fast, 200, 5000"
 sumData4 = out$allTiming;
