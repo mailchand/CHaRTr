@@ -4,16 +4,16 @@
 # nCoh -- number of coherences
 # nmc  -- number of simulated trials
 # model 
+
+library(tictoc);
 FASTRAND=FALSE;
 source("chartr-HelperFunctions.r")
-
-
 
 # Organize 4 rows, provide proper margins
 par(mfrow = c(2,2), mar=c(6, 6, 1, 1))
 nCoh = 5;
 
-tic ("all")
+tic("all")
 # Simulate 50000 trials to show clear trends
 nmc = 10000;
 
