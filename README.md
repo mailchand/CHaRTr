@@ -49,4 +49,4 @@ Typically the install.packages command in R will help you install these packages
 
 ## Mac OSX Catalina 
 
-I had minor issues running it on Mac OSX Catalina. Issues are resolved by updating to the latest R studio and also updating R to 3.6.2. Also install the latest version of the clang compiler for 3.6.2.  (instructions available at https://cran.r-project.org/bin/macosx/)
+I had minor issues running it on Mac OSX Catalina. Issues are resolved by updating to the latest R studio and also updating R to 3.6.2. Also install the latest version of the clang compiler for 3.6.2.  (instructions available at https://cran.r-project.org/bin/macosx/). Please also see https://cran.r-project.org/bin/macosx/tools/
