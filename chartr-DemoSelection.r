@@ -9,9 +9,9 @@ VERBOSE = TRUE;
 # We could probably make a simpler version of this step, so that the 
 # emphasis remains on the second step. 
 
-dataDir = "RS2002/"
-resultsDir = 'RS2002_Fits/'
-subjnam = "n"
+dataDir = "colgrid/"
+resultsDir = 'colgrid_Fits/'
+subjnam = "Olaf.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -30,9 +30,14 @@ modelList = unname(allValidModels$modelNames)
   #            'bUGMSvSb','UGMSv','bUGMSv','UGMSt',
 #              'bUGMSvSt','bUGMSvSbSt','UGMSvSt','DDMSvSt','DDMSvSzSt')
 
+#modelList = c("DDM","DDMSv","DDMSvSz", "UGM","UGMSv",
+              #"bUGM","bUGMSv","bUGMSvSb","uDDM","uDDMSv","uDDMSvSb",
+              #"cDDM","cDDMSv","cDDMSvSz",
+              #"cfkDDM")
+
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 5;
+nreps = 10;
 allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 
