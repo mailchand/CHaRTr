@@ -106,7 +106,7 @@ mcsforpreds=50000
 reobj=obj(x=tmp$optim$bestmem,dat=dat,nmc=mcsforpreds,
           contp=contp,ncohs=ncohs,fitUGM=fitUGM,gub=gub,pred=FALSE,
           qps=qps,stepsize=stepsize,stoch.s=stoch.s,timecons=timecons,usign=usign,
-          parnames=parnames,maxiter=maxiter)
+          parnames=parnames,maxTimeStep=maxTimeStep)
 print(round(reobj,4))
 
 
@@ -116,7 +116,7 @@ mcsforpreds=50000
 reobjperpoint=objPerQ(x=tmp$optim$bestmem,dat=dat,nmc=mcsforpreds,
                       contp=contp,ncohs=ncohs,fitUGM=fitUGM,gub=gub,pred=FALSE,
                       qps=qps,stepsize=stepsize,stoch.s=stoch.s,timecons=timecons,usign=usign,
-                      parnames=parnames,maxiter=maxiter)
+                      parnames=parnames,maxTimeStep=maxTimeStep)
 print(round(reobjperpoint,4))
 out=list(dataset=subjnam,model=model,ndataset=fnam,pars=out,
          obj=-tmp$optim$bestval,reobj=-reobj, reobjperpoint=reobjperpoint)
