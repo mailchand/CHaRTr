@@ -13,13 +13,13 @@ dyn.load("chartr-ModelSpecFast.so")
 
 # load RS2002 data sets to find suitable subjects
 
-dataDir = "RS2002";
-resultsDir = "../RS2002_Fits"
+dataDir = "colgrid";
+resultsDir = "../colgrid_Fits"
 
 
 
 setwd(dataDir)
-RS2002 =  TRUE;
+RS2002 =  FALSE;
 
 
 # set up plot for predicted distributions from the 3x3 of changing drift rate and changing threshold
