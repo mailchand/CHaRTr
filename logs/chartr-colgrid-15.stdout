@@ -1,0 +1,30 @@
+==========================================================
+Chand: CHARTr jobs
+Starting on:Sat May 29 13:45:45 EDT 2021
+Running on node:scc-xm2
+Current Directory: /usr2/faculty/cchandr1/code/CHaRTr
+Current Job Id: 6807929
+Current Job name: chartr-BatchRuns
+Current Task Id: 15
+===========================================================
+
+Please first load the R module with the following command:
+
+> module load R
+
+and then invoke R with:
+
+> R [argument1 ...]
+
+==========================================================
+Finished on: Sat May 29 13:45:45 EDT 2021
+==========================================================
+==========================================================
+Chand: CHARTr jobs
+Starting on:Sat May 29 13:58:21 EDT 2021
+Running on node:scc-xk2
+Current Directory: /usr2/faculty/cchandr1/code/CHaRTr
+Current Job Id: 6807943
+Current Job name: chartr-BatchRuns
+Current Task Id: 15
+===========================================================

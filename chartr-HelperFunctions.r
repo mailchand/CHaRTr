@@ -46,12 +46,14 @@ returnListOfModels = function()
             "bUGMSvSb",                #  9       
             "bUGMSvSbSt",              #  10
 
-            "uDDM",                    #  10
-            "uDDMSt",                  #  11
-            "uDDMSv",                  #  12
-            "uDDMSvSb",                #  13
-            "uDDMSvSt",                #  14
-            "uDDMSvSbSt"               #  15 
+            "uDDM",                    #  11
+            "uDDMSt",                  #  12
+            "uDDMSv",                  #  13
+            "uDDMSvSb",                #  14
+            "uDDMSvSt",                #  15
+            "uDDMSvSbSt"               #  16 
+            
+            
   );
   modelIds = c(seq(-1,-21), seq(1,16));
   modelNames <- setNames( modelList, modelIds)
@@ -354,8 +356,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          {
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","st0")
            print("DDM with Urgency and no gating, constant slope, and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
            
          },
 
@@ -366,15 +368,15 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          uDDMSvSbSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","st0")
            print("DDM with Urgency and no gating and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
          },
          
          uDDMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var","st0")
            print("DDM with Urgency and no gating, constant slope, and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
            
          }, 
          cUGMSvSt={
