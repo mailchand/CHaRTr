@@ -47,7 +47,7 @@ if(RS2002)
   #usemodel = c("DDMSt","bUGMSt","uDDMSt")
 }else
 {
-    usemodel = c("DDM","DDMSvSt","DDMSt","DDMSvSzSt","cfkDDMSvSt","dDDMSvSt")
+    usemodel = c("DDM","uDDMSvSb","bUGMSvSb","cDDMSvSz")
 }
 #
 snams=names(data) ; 
