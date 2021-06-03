@@ -1,4 +1,4 @@
-// This is a change from the ModelSpec.so by using faster random number generators
+/*This is a change from the ModelSpec.so by using faster random number generators*/
 
 #include <math.h>
 #include <stdlib.h>
