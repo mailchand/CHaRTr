@@ -46,14 +46,20 @@ returnListOfModels = function()
             "bUGMSvSb",                #  9       
             "bUGMSvSbSt",              #  10
 
-            "uDDM",                    #  10
-            "uDDMSt",                  #  11
-            "uDDMSv",                  #  12
-            "uDDMSvSb",                #  13
-            "uDDMSvSt",                #  14
-            "uDDMSvSbSt"               #  15 
+            "uDDM",                    #  11
+            "uDDMSt",                  #  12
+            "uDDMSv",                  #  13
+            "uDDMSvSb",                #  14
+            "uDDMSvSt",                #  15
+            "uDDMSvSbSt",              #  16 
+            
+            "nluDDM",                  # 17
+            "nluDDMSv",                # 18
+            "nluDDMSvSb"               # 19
+            
+            
   );
-  modelIds = c(seq(-1,-21), seq(1,16));
+  modelIds = c(seq(-1,-21), seq(1,19));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -89,6 +95,9 @@ printModels = function()
            },
            "U"={
              modelClass="UGM"
+           },
+           "n"={
+             modelClass="Nonlinear urgency"
            },
            "u"={
              modelClass = "urgency"
@@ -151,6 +160,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   
   
   upper_aprime = 0.5;
+  upper_k = 20;
+  upper_lambda = 100;
   
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
@@ -354,8 +365,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          {
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","st0")
            print("DDM with Urgency and no gating, constant slope, and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
            
          },
 
@@ -366,17 +377,38 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          uDDMSvSbSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","st0")
            print("DDM with Urgency and no gating and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
          },
          
          uDDMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var","st0")
            print("DDM with Urgency and no gating, constant slope, and variable Ter")
-           upper_intercept=20;
-           upper_ieta=20;
+           # upper_intercept=20;
+           # upper_ieta=20;
            
          }, 
+         
+         nluDDM={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","lambda","k")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+           
+         },
+         
+         nluDDMSv={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var","lambda","k")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+           
+         },
+         
+         nluDDMSvSb={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","lambda","k")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+           
+         },
          cUGMSvSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","lambda","aprime","k")
            print("Collapsing bounds urgency gating model with a 100 ms time constant and variable non decision time")
@@ -385,11 +417,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          }
   )  
   parUppersDDM = c(rep(upper_v_ddm,NdriftRates), upper_aU_ddm, upper_Ter, upper_eta, upper_st0,
-                   upper_zmin, upper_zmax, 50, 50, 3, 10,upper_aprime,20);
+                   upper_zmin, upper_zmax, 50, 50, 3, upper_lambda,upper_aprime,upper_k);
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
-                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  10,upper_aprime,20)
+                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda,upper_aprime,upper_k)
   names(parUppersUGM)  = TempNamesUGM;
   
   
@@ -657,6 +689,35 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          },
          
          
+         nluDDM={
+          
+           out=.C("nluDDM",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var,
+                  lambda = lambda, k = k,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         nluDDMSv={
+           
+           out=.C("nluDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var,
+                  lambda = lambda, k = k,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         nluDDMSvSb={
+           
+           out=.C("nluDDMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, ieta=ieta, usign_var=usign_var,
+                  lambda = lambda, k = k,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
          
          uDDMSvSt={
            out=.C("uDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
@@ -1032,6 +1093,8 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
       mtext("Probability Correct ", side=1, line=3 , cex=1.5)
     }
   }
+  
+  
   
   for(v in 1:nds) {
     rts <- resps <- numeric(nmc)

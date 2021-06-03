@@ -4,16 +4,16 @@
 # nCoh -- number of coherences
 # nmc  -- number of simulated trials
 # model 
-FASTRAND=FALSE;
+
+library(tictoc);
+FASTRAND=TRUE;
 source("chartr-HelperFunctions.r")
-
-
 
 # Organize 4 rows, provide proper margins
 par(mfrow = c(2,2), mar=c(6, 6, 1, 1))
 nCoh = 5;
 
-tic ("all")
+tic("all")
 # Simulate 50000 trials to show clear trends
 nmc = 10000;
 
@@ -57,4 +57,20 @@ toc();
 
 mtext('Probability Correct', side=1, outer=TRUE, line = -5, cex=1.5)
 mtext('Reaction time (s)', side=2, outer=TRUE, line = -4, cex=1.5)
+
+
+
+model = "nluDDMSv"
+fP = paramsandlims(model,nCoh, fakePars = TRUE)
+currParams = fP$fakeParams
+currParams["intercept"] = 10;
+currParams["usign_var"] = 8;
+currParams["lambda"] = 3;
+currParams["k"] = 5;
+
+tic("nluDDM")
+R = simulateRTs(model, currParams , n=nmc, nds=nCoh,FASTRAND=FASTRAND)
 toc();
+
+mtext('Probability Correct', side=1, outer=TRUE, line = -5, cex=1.5)
+mtext('Reaction time (s)', side=2, outer=TRUE, line = -4, cex=1.5)
