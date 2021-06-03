@@ -14,6 +14,8 @@ fnam = letters[jobnum];
 dirs="caseStudy2"  # directory name of data files to fit
 resultDir = "caseStudy2_Fits/"
 
+dirs = "colgrid"
+
 subjs=dir(dirs); 
 nsubj=length(subjs) 
 listOfSubjects = subjs;
@@ -37,10 +39,10 @@ gub=4
 
 
 
-subjnam="Subj1"
+subjnam="Tiberius.Rdata"
 
 load(paste(dirs,"/",subjnam,sep=""))
-model= "DDM"
+model= "nluDDM"
 saveFileName=paste(resultDir,subjnam,"-",model,"-",fnam,sep="")
 
 # for simple switching in fitting routine
