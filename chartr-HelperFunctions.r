@@ -157,6 +157,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   upper_ieta = 300;
   upper_usign_var = 20;
   upper_timecons_var = 2000;
+  upper_intercept_ddm = 100;
   
   
   upper_aprime = 0.5;
@@ -166,10 +167,10 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
   TempNamesDDM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
-                "zmin","zmax","sx","sy","delay","lambda", "aprime","k");
+                "zmin","zmax","sx","sy","delay","lambda", "aprime","k","intercept");
   
  
-  fakeParsDDM = c(seq(0.04, 0.4, length.out = NdriftRates), 0.08, 0.3, 0.1, 0.15, 0.08, 0.12, 9, 9,0.14, 5, 0.3, 10);
+  fakeParsDDM = c(seq(0.04, 0.4, length.out = NdriftRates), 0.08, 0.3, 0.1, 0.15, 0.08, 0.12, 9, 9,0.14, 5, 0.3, 10, 4);
   names(fakeParsDDM) = TempNamesDDM;
   
  TempNamesUGM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
@@ -209,27 +210,27 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          },
          
          dDDM={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","sx","sy","delay")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","sx","sy","delay","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          dDDMSv={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","sx","sy","delay")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","sx","sy","delay","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          
          dDDMSvSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          dDDMSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0","sx","sy","delay")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0","sx","sy","delay","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          
          
          
          dDDMSvSzSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","zmin","zmax")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","zmin","zmax","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
          
@@ -417,7 +418,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          }
   )  
   parUppersDDM = c(rep(upper_v_ddm,NdriftRates), upper_aU_ddm, upper_Ter, upper_eta, upper_st0,
-                   upper_zmin, upper_zmax, 50, 50, 3, upper_lambda,upper_aprime,upper_k);
+                   upper_zmin, upper_zmax, 50, 50, 3, upper_lambda,upper_aprime,upper_k, upper_intercept_ddm);
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
@@ -766,14 +767,14 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          # dDDM section -----------------------------------------------------------------
          dDDM={
-           out=.C("dDDM",z=z,v=v,delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+           out=.C("dDDM",z=z,v=v,delay=delay, sx=sx, sy=sy, intercept=intercept, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
            
          },
          dDDMSv={
-           out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+           out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, intercept = intercept, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+Ter;
@@ -781,13 +782,13 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          },
          # This is the ditterich model that assumes a complex shape for the bound collapse
          dDDMSvSt={
-           out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+           out=.C("dDDMSv",z=z,v=v,eta=eta, delay=delay, sx=sx, sy=sy, intercept=intercept, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
          },
          dDDMSt={
-           out=.C("dDDM",z=z,v=v, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+           out=.C("dDDM",z=z,v=v, delay=delay, sx=sx, sy=sy, intercept= intercept, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
@@ -795,7 +796,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
      
          dDDMSvSzSt={
-           out=.C("dDDMSvSz",zmin=zmin,zmax=zmax,v=v,eta=eta, delay=delay, sx=sx, sy=sy, aU=aU,aL=aL,
+           out=.C("dDDMSvSz",zmin=zmin,zmax=zmax,v=v,eta=eta, delay=delay, sx=sx, sy=sy, intercept=intercept, aU=aU,aL=aL,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=out$rt+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
