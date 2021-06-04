@@ -242,7 +242,7 @@ int DDMSv(double *z, double *v, double *eta, double *aU, double *aL, double *s,
 }
 
 // step size here is 0.001 ms
-int dDDM(double *z, double *v, double *sx, double *sy, double *delay, double *aU, double *aL,
+int dDDM(double *z, double *v, double *sx, double *sy, double *delay,double *intercept, double *aU, double *aL,
            double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
            int *rangeLow, int *rangeHigh, double *randomTable)
 {
@@ -278,7 +278,7 @@ int dDDM(double *z, double *v, double *sx, double *sy, double *delay, double *aU
       // Using formulation from Ditterich 2006a, multiply by an urgency signal
       // samplev=(*v)*gamma + (*eta)*norm_rand();
       
-      gamma = ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
+      gamma = *intercept + ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
       
       // This allows the specification of an increase in the accumulated evidence over time.
       // There is some lack of clarity in whether the urgency signal multiplies 
@@ -302,8 +302,8 @@ int dDDM(double *z, double *v, double *sx, double *sy, double *delay, double *aU
 
 
 // step size here is 0.001 ms
-int dDDMSv(double *z, double *v, double *eta, double *sx, double *sy, double *delay, double *aU, double *aL,
-                    double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+int dDDMSv(double *z, double *v, double *eta, double *sx, double *sy, double *delay, double *intercept,
+           double *aU, double *aL, double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
                     int *rangeLow, int *rangeHigh, double *randomTable)
 {
   //   double t,rhs,x,hv,samplev;
@@ -339,7 +339,7 @@ int dDDMSv(double *z, double *v, double *eta, double *sx, double *sy, double *de
       // Using formulation from Ditterich 2006a, multiply by an urgency signal
       // samplev=(*v)*gamma + (*eta)*norm_rand();
       
-      gamma = ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
+      gamma = *intercept + ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
       
       // This allows the specification of an increase in the accumulated evidence over time.
       // There is some lack of clarity in whether the urgency signal multiplies 
@@ -361,8 +361,10 @@ int dDDMSv(double *z, double *v, double *eta, double *sx, double *sy, double *de
   PutRNGstate();
 }
 
-int dDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *sx, double *sy, double *delay, double *aU, double *aL,
-           double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,int *rangeLow, int *rangeHigh, double *randomTable)
+int dDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *sx, 
+             double *sy, double *delay, double *intercept,
+             double *aU, double *aL, double *s,double *dt,double *response,double *rt,
+             double *n,double *maxTimeStep,int *rangeLow, int *rangeHigh, double *randomTable)
 {
   //   double t,rhs,x,hv,samplev;
   double rhs,x,samplev, gamma;
@@ -398,7 +400,7 @@ int dDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *sx, dou
       // Using formulation from Ditterich 2006a, multiply by an urgency signal
       // samplev=(*v)*gamma + (*eta)*norm_rand();
       
-      gamma = ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
+      gamma = *intercept + ((*sy)*term1)/(1+term1) + (1 + (1-*sy)*term2)/(1+term2);
       
       // This allows the specification of an increase in the accumulated evidence over time.
       // There is some lack of clarity in whether the urgency signal multiplies 
