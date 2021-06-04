@@ -12,7 +12,7 @@ VERBOSE = TRUE;
 dataDir = "colgrid/"
 resultsDir = 'colgrid_Fits/'
 subjnam = "Olaf.Rdata"
-subjname = "Tiberius.Rdata"
+subjnam = "Tiberius.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -29,13 +29,14 @@ modelList = unname(allValidModels$modelNames)
 
 modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv',
-              'cDDM','cDDMSv','cDDMSvSz',
-              'nluDDM', 'nluDDMSv','nluDDMSvSb'
+              'nluDDM', 'nluDDMSv','nluDDMSvSb',
+              'bUGM','bUGMSv','bUGMSvSb',
+              'cDDM','cDDMSv','cDDMSvSz'
            )
 #  'cDDM','cDDMSv','cDDMSvSz',
 #  'bUGM','bUGMSv', 'bUGMSvSb',
 
-# modelList = c('DDM','DDMSt','DDMSvSt','uDDMSvSt','uDDMSvSbSt','cDDMSvSt','cDDMSvSzSt','bUGMSvSt','bUGMSvSbSt')
+modelList = c('DDMSvSzSt','nluDDMSvSbSt','uDDMSvSbSt','cDDMSvSzSt','bUGMSvSbSt','dDDMSvSzSt','nluDDMSvSt')
 
 #modelList = c("DDM","DDMSv","DDMSvSz", "UGM","UGMSv",
               #"bUGM","bUGMSv","bUGMSvSb","uDDM","uDDMSv","uDDMSvSb",
@@ -44,7 +45,7 @@ modelList = c('DDM','DDMSv','DDMSvSz',
 
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 10;
+nreps = 15;
 allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 
