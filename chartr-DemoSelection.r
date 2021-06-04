@@ -12,7 +12,7 @@ VERBOSE = TRUE;
 dataDir = "colgrid/"
 resultsDir = 'colgrid_Fits/'
 subjnam = "Olaf.Rdata"
-subjname = "Tiberius.Rdata"
+subjnam = "Tiberius.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -43,7 +43,7 @@ modelList = c('DDM','DDMSv','DDMSvSz',
 
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 10;
+nreps = 15;
 allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 
