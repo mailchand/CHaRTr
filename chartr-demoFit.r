@@ -42,7 +42,7 @@ gub=4
 subjnam="Tiberius.Rdata"
 
 load(paste(dirs,"/",subjnam,sep=""))
-model= "nluDDM"
+model= "dDDM"
 saveFileName=paste(resultDir,subjnam,"-",model,"-",fnam,sep="")
 
 # for simple switching in fitting routine
