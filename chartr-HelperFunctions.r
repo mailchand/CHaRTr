@@ -165,7 +165,9 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   upper_aprime = 0.5;
   upper_k = 20;
   upper_lambda = 100;
+  
   upper_delay = 4;
+  upper_lambda_urgency = 5;
   
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
@@ -442,7 +444,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
-                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda,upper_aprime,upper_k, upper_delay)
+                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
   names(parUppersUGM)  = TempNamesUGM;
   
   
