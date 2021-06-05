@@ -31,12 +31,13 @@ modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv',
               'nluDDM', 'nluDDMSv','nluDDMSvSb',
               'bUGM','bUGMSv','bUGMSvSb',
-              'cDDM','cDDMSv','cDDMSvSz'
+              'cDDM','cDDMSv','cDDMSvSz',
+              'nluDDMd'
            )
 #  'cDDM','cDDMSv','cDDMSvSz',
 #  'bUGM','bUGMSv', 'bUGMSvSb',
 
-modelList = c('DDMSvSzSt','nluDDMSvSbSt','uDDMSvSbSt','cDDMSvSzSt','bUGMSvSbSt','dDDMSvSzSt','nluDDMSvSt')
+# modelList = c('DDMSvSzSt','nluDDMSvSbSt','uDDMSvSbSt','cDDMSvSzSt','bUGMSvSbSt','dDDMSvSzSt','nluDDMSvSt')
 
 #modelList = c("DDM","DDMSv","DDMSvSz", "UGM","UGMSv",
               #"bUGM","bUGMSv","bUGMSvSb","uDDM","uDDMSv","uDDMSvSb",
@@ -45,7 +46,7 @@ modelList = c('DDMSvSzSt','nluDDMSvSbSt','uDDMSvSbSt','cDDMSvSzSt','bUGMSvSbSt',
 
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 15;
+nreps = 10;
 allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 

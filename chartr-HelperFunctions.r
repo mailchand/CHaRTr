@@ -59,9 +59,10 @@ returnListOfModels = function()
             "nluDDMSvSt",              # 20
             "nluDDMSvSbSt",            # 21
             
-            "nluDDMd"                  # 22
+            "nluDDMd",                 # 22
+            "nluDDMdSvSb"              # 23
   );
-  modelIds = c(seq(-1,-21), seq(1,22));
+  modelIds = c(seq(-1,-21), seq(1,23));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -413,6 +414,13 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
          },
          
+         nluDDMdSvSb={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "intercept","ieta", "usign_var","lambda","k","delay")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+         },
+         
+         
          nluDDMSvSt={
            print("Nonlinear uDDM")
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var","lambda","k","st0")
@@ -725,6 +733,15 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          nluDDMd={
            out=.C("nluDDMd",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept, usign_var=usign_var, delay = delay,
+                  lambda = lambda, k = k, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,
+                  maxTimeStep=maxTimeStep,rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         nluDDMdSvSb={
+           out=.C("nluDDMdSvSb",z=z,v=v,eta = eta, aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, ieta= ieta, usign_var=usign_var, delay = delay,
                   lambda = lambda, k = k, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,
                   maxTimeStep=maxTimeStep,rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
                   randomTable = as.double(LUT));
