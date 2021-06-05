@@ -533,6 +533,65 @@ int nluDDM(double *z, double *v, double *aU, double *aL, double *timecons,
   PutRNGstate();
 }
 
+int nluDDMd(double *z, double *v, double *aU, double *aL, double *timecons, 
+           double *usign, double *intercept, double *usign_var,
+           double *lambda, double *k, double *delay,
+           double *s,double *dt,double *response,double *rt,
+           double *n,double *maxTimeStep,
+           int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  double rhs,x,xu,samplev, gamma;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  double tCurr;
+  
+  /* Convert some double inputs to integer types. */
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  
+  
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      // Nothing fancy in this signal except a simple linearly increasing time varying signal with an intercept
+      // and a slope term.
+      // gamma = (*intercept + *usign_var*timeStep*(*dt));
+      tCurr = (timeStep*(*dt))/1000.0;
+      if(tCurr < *delay)
+      {
+        gamma = *intercept;
+      }
+      else
+      {
+        gamma = (*intercept + *usign_var*(1-exp(-pow(tCurr/(*lambda),*k))));
+      }
+      // This allows the specification of an increase in the momentary evidence over time.
+      x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
 int nluDDMSv(double *z, double *v, double *eta, double *aU, double *aL, double *timecons, 
            double *usign, double *intercept, double *usign_var,
            double *lambda, double *k,
