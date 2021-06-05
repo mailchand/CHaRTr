@@ -808,7 +808,132 @@ int uDDM(double *z, double *v, double *aU, double *aL, double *timecons,
   PutRNGstate();
 }
 
+// Like the UGM but no filtering and no time constants.
+int uDDMd(double *z, double *v, double *aU, double *aL, double *timecons, 
+         double *usign, double *intercept, double *usign_var, double *delay,
+         double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+         int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,xu,samplev, gamma;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  double tCurr;
+  
+  /* Convert some double inputs to integer types. */
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  
+  
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      // Nothing fancy in this signal except a simple linearly increasing time varying signal with an intercept
+      // and a slope term.
+      tCurr = (timeStep*(*dt))/1000.0;
+      if(tCurr < *delay)
+      {
+        gamma = *intercept;
+      }
+      else
+      {
+        gamma = (*intercept + *usign_var*timeStep*(*dt));
+      }
+      
+      // This allows the specification of an increase in the momentary evidence over time.
+      x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
 
+int uDDMdSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
+             double *usign, double *intercept, double *ieta, double *usign_var, double *delay,
+             double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep, 
+             int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,xu,samplev, sampleintercept, gamma;
+  double tCurr;
+  // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  
+  /* Convert some double inputs to integer types. */
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  // weight for exponentially-weighted moving average
+  // alpha=(*dt)/((*dt)+(*timecons));
+  
+  
+  
+  
+  for (i=0;i<N;i++) {
+    samplev=(*v)+(*eta)*randomTable[returnRandomNumber(rangeL, rangeH)];
+    sampleintercept = (*intercept) + (*ieta)*unif_rand();
+    
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      
+      tCurr = (timeStep*(*dt))/1000.0;
+      if(tCurr < *delay)
+      {
+        gamma = sampleintercept;
+      }
+      else
+      {
+        gamma = (sampleintercept + *usign_var*timeStep*(*dt));
+      }
+      // No filtering and just addition of this signal
+      gamma = (sampleintercept + *usign_var*timeStep*(*dt));
+      
+      
+      // This allows the specification of an increase in the momentary evidence over time.
+      x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
 
 
 // Like the UGM but no filtering and no time constants.

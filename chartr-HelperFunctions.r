@@ -60,9 +60,12 @@ returnListOfModels = function()
             "nluDDMSvSbSt",            # 21
             
             "nluDDMd",                 # 22
-            "nluDDMdSvSb"              # 23
+            "nluDDMdSvSb",             # 23
+            
+            "uDDMd",                   # 24
+            "uDDMdSvSb"                # 25 
   );
-  modelIds = c(seq(-1,-21), seq(1,23));
+  modelIds = c(seq(-1,-21), seq(1,25));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -364,10 +367,22 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var")
            print("DDM with Urgency and no gating and fixed Ter")
          },
+         
+         uDDMdSvSb={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "intercept","ieta", "usign_var","delay")
+           print("DDM with Urgency and no gating, constant slope, and fixed Ter")
+         }, 
+         
          uDDM={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var")
            print("DDM with Urgency and no gating, constant slope, and fixed Ter")
          }, 
+         
+         uDDMd={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","delay")
+           print("DDM with Urgency and no gating, constant slope, and fixed Ter")
+         }, 
+         
          uDDMSt = 
          {
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","st0")
@@ -704,6 +719,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          },
+         
+         uDDMd={
+           out=.C("uDDMd",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var, delay = delay,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         
          uDDMSv={
            out=.C("uDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
@@ -803,6 +828,15 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          }, 
+         
+         uDDMdSvSb={
+           out=.C("uDDMdSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept,ieta=ieta,usign_var=usign_var, delay = delay,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
          uDDMSvSbSt={
            out=.C("uDDMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
                   usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
