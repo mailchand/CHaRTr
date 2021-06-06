@@ -542,7 +542,7 @@ int nluDDMd(double *z, double *v, double *aU, double *aL, double *timecons,
 {
   double rhs,x,xu,samplev, gamma;   // xu stores x + urgency signal at each time point
   int N,i,timeStep,MaxTimeStep;
-  double tCurr;
+  double tCurr, tDelay;
   
   /* Convert some double inputs to integer types. */
   int rangeL, rangeH;
@@ -573,7 +573,7 @@ int nluDDMd(double *z, double *v, double *aU, double *aL, double *timecons,
       }
       else
       {
-        gamma = (*intercept + *usign_var*(1-exp(-pow(tCurr/(*lambda),*k))));
+        gamma = (*intercept + *usign_var*(1-exp(-pow((tCurr-*delay)/(*lambda),*k))));
       }
       // This allows the specification of an increase in the momentary evidence over time.
       x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
@@ -739,7 +739,7 @@ int nluDDMdSvSb(double *z, double *v, double *eta, double *aU, double *aL, doubl
       }
       else
       {
-        gamma = (sampleintercept + *usign_var*(1-exp(-pow(tCurr/(*lambda),*k))));
+        gamma = (sampleintercept + *usign_var*(1-exp(-pow((tCurr-*delay)/(*lambda),*k))));
       }
       // This allows the specification of an increase in the momentary evidence over time.
       x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
@@ -847,7 +847,7 @@ int uDDMd(double *z, double *v, double *aU, double *aL, double *timecons,
       }
       else
       {
-        gamma = (*intercept + *usign_var*timeStep*(*dt));
+        gamma = (*intercept + *usign_var*(timeStep*(*dt) - (*delay)*1000.0));
       }
       
       // This allows the specification of an increase in the momentary evidence over time.
@@ -912,11 +912,9 @@ int uDDMdSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *
       }
       else
       {
-        gamma = (sampleintercept + *usign_var*timeStep*(*dt));
+        gamma = (sampleintercept + *usign_var*(timeStep*(*dt) - (*delay)*1000.0));
       }
       // No filtering and just addition of this signal
-      gamma = (sampleintercept + *usign_var*timeStep*(*dt));
-      
       
       // This allows the specification of an increase in the momentary evidence over time.
       x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
