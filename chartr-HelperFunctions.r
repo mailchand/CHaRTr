@@ -57,11 +57,15 @@ returnListOfModels = function()
             "nluDDMSv",                # 18
             "nluDDMSvSb",              # 19
             "nluDDMSvSt",              # 20
-            "nluDDMSvSbSt"             # 21
+            "nluDDMSvSbSt",            # 21
             
+            "nluDDMd",                 # 22
+            "nluDDMdSvSb",             # 23
             
+            "uDDMd",                   # 24
+            "uDDMdSvSb"                # 25 
   );
-  modelIds = c(seq(-1,-21), seq(1,21));
+  modelIds = c(seq(-1,-21), seq(1,25));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -166,6 +170,9 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   upper_k = 20;
   upper_lambda = 100;
   
+  upper_delay = 4;
+  upper_lambda_urgency = 5;
+  
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
   TempNamesDDM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
@@ -176,8 +183,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(fakeParsDDM) = TempNamesDDM;
   
  TempNamesUGM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
-                "intercept","ieta","timecons_var","usign_var", "lambda", "aprime","k");
-  fakeParsUGM = c(seq(1.5, 15,  length.out=NdriftRates) + 0.5*rnorm(nds), 12000, 0.3, 4, 0.1, 1000, 600, 200,1, 5, 0.3, 10);
+                "intercept","ieta","timecons_var","usign_var", "lambda", "aprime","k","delay");
+  fakeParsUGM = c(seq(1.5, 15,  length.out=NdriftRates) + 0.5*rnorm(nds), 12000, 0.3, 4, 0.1, 1000, 600, 200,1, 5, 0.3, 10,0.3);
   names(fakeParsUGM) = TempNamesUGM;
 
   switch(model, 
@@ -360,10 +367,22 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var")
            print("DDM with Urgency and no gating and fixed Ter")
          },
+         
+         uDDMdSvSb={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "intercept","ieta", "usign_var","delay")
+           print("DDM with Urgency and no gating, constant slope, and fixed Ter")
+         }, 
+         
          uDDM={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var")
            print("DDM with Urgency and no gating, constant slope, and fixed Ter")
          }, 
+         
+         uDDMd={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","delay")
+           print("DDM with Urgency and no gating, constant slope, and fixed Ter")
+         }, 
+         
          uDDMSt = 
          {
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","st0")
@@ -410,6 +429,13 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
          },
          
+         nluDDMdSvSb={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "intercept","ieta", "usign_var","lambda","k","delay")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+         },
+         
+         
          nluDDMSvSt={
            print("Nonlinear uDDM")
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var","lambda","k","st0")
@@ -419,6 +445,12 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          nluDDMSvSbSt={
            print("Nonlinear uDDM")
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","lambda","k","st0")
+           print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
+         },
+         
+         nluDDMd={
+           print("Nonlinear uDDM")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","lambda","k","delay")
            print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
          },
          
@@ -435,7 +467,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
-                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda,upper_aprime,upper_k)
+                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
   names(parUppersUGM)  = TempNamesUGM;
   
   
@@ -687,6 +719,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          },
+         
+         uDDMd={
+           out=.C("uDDMd",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var, delay = delay,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         
          uDDMSv={
            out=.C("uDDMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
@@ -710,6 +752,24 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   lambda = lambda, k = k,
                   s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         nluDDMd={
+           out=.C("nluDDMd",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, usign_var=usign_var, delay = delay,
+                  lambda = lambda, k = k, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,
+                  maxTimeStep=maxTimeStep,rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         },
+         
+         nluDDMdSvSb={
+           out=.C("nluDDMdSvSb",z=z,v=v,eta = eta, aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept, ieta= ieta, usign_var=usign_var, delay = delay,
+                  lambda = lambda, k = k, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,
+                  maxTimeStep=maxTimeStep,rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
+                  randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          },
          
@@ -768,6 +828,15 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          }, 
+         
+         uDDMdSvSb={
+           out=.C("uDDMdSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
+                  intercept=intercept,ieta=ieta,usign_var=usign_var, delay = delay,
+                  s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
          uDDMSvSbSt={
            out=.C("uDDMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
                   usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,

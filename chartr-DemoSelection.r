@@ -30,7 +30,8 @@ modelList = unname(allValidModels$modelNames)
 modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv',
               'bUGM','bUGMSv','bUGMSvSb',
-              'cDDM','cDDMSv','cDDMSvSz'
+              'cDDM','cDDMSv','cDDMSvSz',
+              'nluDDMd'
            )
 #  'cDDM','cDDMSv','cDDMSvSz',
 #  'bUGM','bUGMSv', 'bUGMSvSb',
@@ -44,7 +45,7 @@ modelList = c('DDMSvSzSt','uDDMSvSbSt','cDDMSvSzSt','bUGMSvSbSt','dDDMSvSzSt')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
-nreps = 15;
+nreps = 10;
 allRuns = letters[c(1:nreps)];
 tempReObj = seq(1,length(allRuns))
 
