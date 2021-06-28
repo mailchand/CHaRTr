@@ -1,0 +1,450 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> #' Processes RT data from our experiments and uses it for testing if the DDM or the UGM
+> #' are better fits to the data
+> #' interface script for fitting routines to test Stone vs Stone+UGM model #
+> #' 
+> 
+> # Typically because there is randomness in the optimizer you end up using at least five runs of the model in order
+> # to be sure your data are correct
+> 
+> 
+> rm(list=ls())
+> library(tictoc);
+> source("chartr-FitRoutines.r")
+> source("chartr-HelperFunctions.r")
+> 
+> jobnum=as.numeric(Sys.getenv("SGE_TASK_ID"));
+> 
+> set.seed(jobnum)
+> fnam = letters[jobnum];
+> 
+> # source the fitting code files
+> 
+> 
+> args=(commandArgs(TRUE));
+> ##args is now a list of character vectors
+> ## First check to see if arguments are passed.
+> ## Then cycle through each element of the list and evaluate the expressions.
+> if(length(args)==0){
++     print("No arguments supplied.")
++     ##supply default values
++     folder="colgrid"
++ }else{
++     for(i in 1:length(args)){
++          eval(parse(text=args[[i]]))
++     }
++ }
+[1] "No arguments supplied."
+> 
+> 
+> 
+> 
+> dirs=folder  # directory name of data files to fit
+> subjs=dir(dirs); 
+> nsubj=length(subjs) 
+> 
+> # subject names
+> # set up fit to data
+> 
+> # Grab a list of subjects
+> listOfSubjects = subjs;
+> 
+> # Setup some baseline parameters
+> contp = list(p=0)  # if estcontp==FALSE, give proportion of contaminant responses
+> maxits = 750  # number of iterations of DEoptim to run
+> nparticles = 400  # number of particles/chains for DEoptim
+> nmc = 10000  # number of MC samples for simulating the models at each iteration
+> estcontp=FALSE  # estimate contaminant mixture probability from data. usually set to false
+> 
+> 
+> bailouttime=4  # time after which to bail out of diffusion sims, in seconds
+> maxTimeStep=as.double(length(seq(0,bailouttime,.001)))   # max iterations for fitting routine, then bail out
+> 
+> pred=F  # generate model predictions from fitting routine (only use this once you have estimtated parameters from data using DEoptim)
+> 
+> nreps = 5;
+> gub=4
+> 
+> allValidModels = returnListOfModels()
+> modelList = unname(allValidModels$modelNames)
+> 
+> 
+> for(subjId in seq(2,length(listOfSubjects)))
++ {
++   subjnam=listOfSubjects[subjId]
++   for(modelId in seq(1,length(modelList)))
++   {
++ 
++     # Clear logs for tic
++     tic.clearlog();
++     tic("dataLoading", quiet=TRUE);
++     
++     # load data set to fit
++     load(paste(dirs,"/",subjnam,sep=""))
++     model= modelList[modelId]
++     
++     saveFileName=paste(dirs,"_Fits/",subjnam,"-",model,"-",fnam,sep="")
++     if(!file.exists((saveFileName))){
++     cat(paste("\n",dirs,"dataset:",subjnam,", \n model:",model,"\n Filename", fnam,"\n\n",sep=" "))  
++     
++     # for simple switching in fitting routine
++     qps=as.numeric(dimnames(dat$q)[[1]])
++     ncohs=1:dim(dat$q)[3]
++     
++     
++     # make parameter vector - different scaling for Stone and Stone+UGM
++     #    order: drifts (7), eta, upper boundary, Ter
++     nstart=1;
++     nds=length(ncohs)    # v1 is 0% coherence, will be set to 0 drift in internal function
++     
++     
++     actualParams = paramsandlims(model, nds, nstart=nstart)
++     fitUGM = unname(actualParams$fitUGM)
++     lowers = actualParams$lowers
++     uppers = actualParams$uppers
++     parnames = actualParams$parnames
++     
++     stepsize=ifelse(fitUGM < 0,.001,1)  # time step for diffusion process: .001s (Stone), 1ms (UGM)
++     stoch.s=ifelse(fitUGM < 0,.1,100)   # diffusion constant
++     timecons=ifelse(fitUGM < 0,0,100)   # time constant for low pass filter
++     usign=ifelse(fitUGM < 0,0,1)        # scaling value for linear urgency function (usign=1 is linear with time). EAM needs usign=0, timecons=0
++     
++     toc(log=TRUE,quiet=TRUE);
++     
++     
++     # cutoff for very slow RTs
++     # gub = global upper bound in seconds - no RTs should be slower than this (and none were in data)
++     tic("optimization", quiet=TRUE);
++     print("Starting optimization ...")
++     library(DEoptim)
++     
++       tmp=DEoptim(
++         fn=obj,
++         lower=lowers,
++         upper=uppers,
++         dat=dat,
++         nmc=nmc,
++         contp=contp,
++         ncohs=ncohs,
++         fitUGM=fitUGM,
++         gub=gub,
++         pred=FALSE,
++         qps=qps,
++         stepsize=stepsize,
++         stoch.s=stoch.s,
++         timecons=timecons,
++         usign=usign,
++         parnames=parnames,
++         maxTimeStep=maxTimeStep,
++         control=DEoptim.control(itermax=maxits,NP=nparticles,trace=TRUE,
++                                 parallelType=1,reltol=1e-6,steptol=200,
++                                 # load objects used for fitting, for parallelType==1
++                                 parVar=list("dat","lowers","uppers","nmc","contp","ncohs", "fitUGM","pred",
++                                             "qps", "stepsize","stoch.s","timecons",
++                                             "usign","parnames","maxTimeStep","maxits",
++                                             "nparticles","gub",
++                                             "diffusionC","makeparamlist",
++                                             "contaminantmixresps","qmpouts",
++                                             "getpreds","obj","returnListOfModels")
++                                 # same again, but for functions
++         ));
++     cat(paste("\n",dirs,"dataset:",subjnam,", model:",model,fnam,"\n\n",sep=" "))
++     
++     toc(log=TRUE,quiet=TRUE);
++       
++     tic("objective",quiet=TRUE);
++       
++     out=tmp$optim$bestmem
++     names(out)=parnames
++     print(round(out,4))
++     
++     print(round(tmp$optim$bestval,4))
++     # re-calculate obj for best fitting parameters, to determine amount of noise
++     # in the obj value for the best fit
++     mcsforpreds=50000
++     reobj=obj(x=tmp$optim$bestmem,dat=dat,nmc=mcsforpreds,
++               contp=contp,ncohs=ncohs,fitUGM=fitUGM,gub=gub,pred=FALSE,
++               qps=qps,stepsize=stepsize,stoch.s=stoch.s,timecons=timecons,usign=usign,
++               parnames=parnames,maxTimeStep=maxTimeStep)
++     print(round(reobj,4))
++     
++     
++     # Now compute it for each level of quantile. Suspicion is that you go awry for the hardest coherences and you really need to think 
++     # about what goes on there. Life is not easy there :)
++     mcsforpreds=50000
++     reobjperpoint=objPerQ(x=tmp$optim$bestmem,dat=dat,nmc=mcsforpreds,
++                           contp=contp,ncohs=ncohs,fitUGM=fitUGM,gub=gub,pred=FALSE,
++                           qps=qps,stepsize=stepsize,stoch.s=stoch.s,timecons=timecons,usign=usign,
++                           parnames=parnames,maxTimeStep=maxTimeStep)
++     print(round(reobjperpoint,4))
++     toc(log=TRUE,quiet=TRUE);
++     
++     # Now get timings etc from the toc log.
++     
++     timingLogTxt <- tic.log(format = TRUE);
++     timingLogLst <- tic.log(format = FALSE)
++     timings <- unlist(lapply(timingLogLst, function(x) x$toc - x$tic))
++     rawTimingsTic <- unlist(lapply(timingLogLst, function(x) x$tic))
++     rawTimingsToc <- unlist(lapply(timingLogLst, function(x) x$toc))
++     
++     out=list(dataset=subjnam,model=model,ndataset=fnam,pars=out,
++              obj=-tmp$optim$bestval,reobj=-reobj, reobjperpoint=reobjperpoint, 
++              lower=lowers, upper=uppers,
++              timings = timings, timingLogLst = timingLogLst, timingLogTxt = timingLogTxt, 
++              rawTimingsTic = rawTimingsTic, rawTimingsToc = rawTimingsToc, nparticles=nparticles, nmc=nmc);
++     
++     
++     save(out,file=saveFileName)
++     }
++     else
++     {
++       cat(paste("\n",dirs,"dataset:",subjnam,", model:",model,fnam," already exists..skipping",sep=" "))  
++     }
++ 
++   }
++ }
+
+ colgrid dataset: Tiberius.Rdata , model: DDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: DDMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: DDMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: DDMSvSz h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: DDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: DDMSvSzSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDMSvSz h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cDDMSvSzSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: dDDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: dDDMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: dDDMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: dDDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: dDDMSvSzSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cfkDDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cfkDDMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cfkDDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: cfkDDMSvSzSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: UGM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: UGMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: UGMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: UGMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGMSvSb h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: bUGMSvSbSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDMSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDMSvSb h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: uDDMSvSbSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: nluDDM h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: nluDDMSv h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: nluDDMSvSb h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: nluDDMSvSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , model: nluDDMSvSbSt h  already exists..skipping
+ colgrid dataset: Tiberius.Rdata , 
+ model: nluDDMd 
+ Filename h 
+
+[1] "Nonlinear uDDM"
+[1] "DDM with nonlinear Urgency and no gating, constant slope, and variable Ter"
+[1] "Starting optimization ..."
+Loading required package: parallel
+
+DEoptim package
+Differential Evolution algorithm in R
+Authors: D. Ardia, K. Mullen, B. Peterson and J. Ulrich
+
+Iteration: 1 bestvalit: 564140.115364 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   26.340364   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 2 bestvalit: 564140.115364 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   26.340364   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 3 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 4 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 5 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 6 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 7 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 8 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 9 bestvalit: 561145.548934 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    0.540273    1.485481
+Iteration: 10 bestvalit: 533142.800638 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    3.467552    1.485481
+Iteration: 11 bestvalit: 533142.800638 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    3.467552    1.485481
+Iteration: 12 bestvalit: 533142.800638 bestmemit:   16.748548    3.503793   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    3.467552    1.485481
+Iteration: 13 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 14 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 15 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 16 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 17 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 18 bestvalit: 477400.667687 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.216304
+Iteration: 19 bestvalit: 476788.379959 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.213969
+Iteration: 20 bestvalit: 476788.379959 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.213969
+Iteration: 21 bestvalit: 476788.379959 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    3.821645   42.135544    4.080839    2.213969
+Iteration: 22 bestvalit: 476689.866140 bestmemit:   10.087295   11.576971   23.337802   20.525442   31.054051   17.253072   24.92978515370.804892    0.125380    2.129563    0.272210   72.576883   14.378020    2.213969
+Iteration: 23 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 24 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 25 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 26 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 27 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 28 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 29 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 30 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 31 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 32 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 33 bestvalit: 410983.126423 bestmemit:    2.788683    8.572986    1.735666    3.563141   15.276518    9.848582    6.16478815739.637082    0.324366   17.941728    1.910196    1.479786   10.405044    0.920799
+Iteration: 34 bestvalit: 404164.950962 bestmemit:    1.423404    7.737639    4.599885    3.905709   13.213321   14.537667   12.44430613382.914847    0.291602   12.809122    3.247185   10.153485    1.510290    1.292691
+Iteration: 35 bestvalit: 404164.950962 bestmemit:    1.423404    7.737639    4.599885    3.905709   13.213321   14.537667   12.44430613382.914847    0.291602   12.809122    3.247185   10.153485    1.510290    1.292691
+Iteration: 36 bestvalit: 403291.702977 bestmemit:    1.423404    7.737639    4.599885    3.905709   13.213321   14.537667   12.44430613382.914847    0.291602   12.809122    5.539751   10.153485    1.510290    1.292691
+Iteration: 37 bestvalit: 403291.702977 bestmemit:    1.423404    7.737639    4.599885    3.905709   13.213321   14.537667   12.44430613382.914847    0.291602   12.809122    5.539751   10.153485    1.510290    1.292691
+Iteration: 38 bestvalit: 403291.702977 bestmemit:    1.423404    7.737639    4.599885    3.905709   13.213321   14.537667   12.44430613382.914847    0.291602   12.809122    5.539751   10.153485    1.510290    1.292691
+Iteration: 39 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 40 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 41 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 42 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 43 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 44 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 45 bestvalit: 352226.027199 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   12.03841815626.995526    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 46 bestvalit: 351945.477217 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 47 bestvalit: 351945.477217 bestmemit:    2.893176    8.998429    8.905998   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 48 bestvalit: 350995.849557 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 49 bestvalit: 350995.849557 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 50 bestvalit: 350995.849557 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 51 bestvalit: 350995.849557 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    0.987557
+Iteration: 52 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 53 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 54 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 55 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 56 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 57 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 58 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 59 bestvalit: 350459.998899 bestmemit:    2.893176    8.998429   11.768070   15.384143   18.413700   18.640945   15.57831415998.564601    0.276627    6.627023   15.210616   70.987441   14.522170    1.288270
+Iteration: 60 bestvalit: 343027.248642 bestmemit:    6.025404    0.619568    7.666993    7.651000    9.987004   15.222305    6.21141216114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    0.825900
+Iteration: 61 bestvalit: 343027.248642 bestmemit:    6.025404    0.619568    7.666993    7.651000    9.987004   15.222305    6.21141216114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    0.825900
+Iteration: 62 bestvalit: 342717.613677 bestmemit:    1.275720    0.112516    2.933508    9.334375    9.280243   16.933535   17.25569019993.154532    0.303790   11.271976   19.940494   63.054122    1.733264    2.959549
+Iteration: 63 bestvalit: 342717.613677 bestmemit:    1.275720    0.112516    2.933508    9.334375    9.280243   16.933535   17.25569019993.154532    0.303790   11.271976   19.940494   63.054122    1.733264    2.959549
+Iteration: 64 bestvalit: 339102.777697 bestmemit:    6.763403    5.774179    7.084311    9.531646   11.158387   14.804061   11.20999416672.393829    0.279972    8.018278   12.386799   79.252025    7.133978    1.596475
+Iteration: 65 bestvalit: 339102.777697 bestmemit:    6.763403    5.774179    7.084311    9.531646   11.158387   14.804061   11.20999416672.393829    0.279972    8.018278   12.386799   79.252025    7.133978    1.596475
+Iteration: 66 bestvalit: 338988.446170 bestmemit:    6.763403    5.774179    7.084311    9.531646   11.158387   14.804061   11.20999416672.393829    0.279972    8.018278   12.386799   79.252025    7.133978    2.955014
+Iteration: 67 bestvalit: 337787.483078 bestmemit:    1.711083    1.746880    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   11.398102   72.946145    6.863751    2.083109
+Iteration: 68 bestvalit: 337560.991843 bestmemit:    1.711083    2.479834    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   11.398102   72.946145    6.863751    2.083109
+Iteration: 69 bestvalit: 337498.608080 bestmemit:    1.711083    2.479834    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   11.605852   72.946145    6.863751    2.083109
+Iteration: 70 bestvalit: 337346.569842 bestmemit:    1.711083    2.479834    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 71 bestvalit: 337346.569842 bestmemit:    1.711083    2.479834    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 72 bestvalit: 337346.569842 bestmemit:    1.711083    2.479834    9.261151   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 73 bestvalit: 336648.255560 bestmemit:    1.711083    2.479834    6.695791   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 74 bestvalit: 336648.255560 bestmemit:    1.711083    2.479834    6.695791   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 75 bestvalit: 336648.255560 bestmemit:    1.711083    2.479834    6.695791   13.163604   10.501609   10.251907   13.55304618582.501954    0.313218   13.734385   10.544696   53.362222    9.182332    2.083109
+Iteration: 76 bestvalit: 335708.446135 bestmemit:    2.189813    0.619568    7.666993    7.651000    9.987004   12.008322   19.12273816114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 77 bestvalit: 335708.446135 bestmemit:    2.189813    0.619568    7.666993    7.651000    9.987004   12.008322   19.12273816114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 78 bestvalit: 333214.842610 bestmemit:    4.321314    4.085549    7.879582   10.526762   11.175901   13.865199   11.47491514647.399022    0.292195    7.467318   18.850822   20.019282    6.207714    0.606111
+Iteration: 79 bestvalit: 333214.842610 bestmemit:    4.321314    4.085549    7.879582   10.526762   11.175901   13.865199   11.47491514647.399022    0.292195    7.467318   18.850822   20.019282    6.207714    0.606111
+Iteration: 80 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 81 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 82 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 83 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 84 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 85 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 86 bestvalit: 332761.319335 bestmemit:    2.189813    1.482325    7.666993    7.651000    9.987004   12.008322    9.98433016114.996441    0.310946   10.631901    1.289140   34.690169    9.298471    1.107636
+Iteration: 87 bestvalit: 331655.612368 bestmemit:    1.963693    1.802796    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.779217
+Iteration: 88 bestvalit: 331655.612368 bestmemit:    1.963693    1.802796    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.779217
+Iteration: 89 bestvalit: 331609.686402 bestmemit:    2.941920    1.802796    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.779217
+Iteration: 90 bestvalit: 331609.686402 bestmemit:    2.941920    1.802796    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.779217
+Iteration: 91 bestvalit: 331062.083119 bestmemit:    0.369241    2.634965    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.830201
+Iteration: 92 bestvalit: 331062.083119 bestmemit:    0.369241    2.634965    4.968855    9.547611   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    3.059510    3.830201
+Iteration: 93 bestvalit: 330463.997848 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    0.606183
+Iteration: 94 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 95 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 96 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 97 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 98 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 99 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 100 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 101 bestvalit: 330283.533057 bestmemit:    3.443112    5.731080    9.327830    8.946444   11.400394   11.312021   13.80753516627.846979    0.290534    9.915699   16.106122   70.034189    6.655435    3.660050
+Iteration: 102 bestvalit: 329746.334983 bestmemit:    2.378182    2.585535    6.142738    9.851287   11.161518   14.067349   15.31606919826.307014    0.302814   12.389221    9.045032   63.157990   10.317495    1.967083
+Iteration: 103 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 104 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 105 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 106 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 107 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 108 bestvalit: 329652.339630 bestmemit:    2.469975    2.252079    9.083437   10.953536   10.538667   13.728546   12.81120516093.410261    0.300951    9.703451   13.173154    3.892841    4.143489    2.293285
+Iteration: 109 bestvalit: 329518.886288 bestmemit:    1.566433    6.116061    7.827036    9.459683   11.982720   10.407733   14.779888 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 110 bestvalit: 328924.977965 bestmemit:    1.566433    6.116061    7.827036    9.459683   11.982720   11.251808   14.779888 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 111 bestvalit: 328530.606275 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 112 bestvalit: 328530.606275 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 113 bestvalit: 328530.606275 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 114 bestvalit: 328530.606275 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 115 bestvalit: 328530.606275 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    3.718649
+Iteration: 116 bestvalit: 328329.858925 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    1.620330
+Iteration: 117 bestvalit: 328329.858925 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    1.620330
+Iteration: 118 bestvalit: 328329.858925 bestmemit:    1.566433    6.116061    7.827036    9.459683   10.981329   13.688080   13.642059 8808.969879    0.302250    5.142048   17.961682   94.490786   12.342651    1.620330
+Iteration: 119 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 120 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 121 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 122 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 123 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 124 bestvalit: 327952.081822 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    1.300809
+Iteration: 125 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 126 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 127 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 128 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 129 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 130 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 131 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 132 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 133 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 134 bestvalit: 327347.143095 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.626571    0.487812    0.130593    2.531343
+Iteration: 135 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 136 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 137 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 138 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 139 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 140 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 141 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 142 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 143 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 144 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 145 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 146 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 147 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 148 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 149 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 150 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 151 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 152 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 153 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 154 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 155 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 156 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 157 bestvalit: 327338.170956 bestmemit:    2.346379    5.844599    6.138430   10.208100    8.068911   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 158 bestvalit: 326950.004292 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 159 bestvalit: 326950.004292 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 160 bestvalit: 326950.004292 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 161 bestvalit: 326950.004292 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319375.061694    0.285695   10.141552   13.715563    0.487812    0.130593    2.531343
+Iteration: 162 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 163 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 164 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 165 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 166 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 167 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 168 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 169 bestvalit: 326861.598672 bestmemit:    2.346379    5.844599    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 170 bestvalit: 326567.921679 bestmemit:    2.346379    5.239166    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
+Iteration: 171 bestvalit: 326567.921679 bestmemit:    2.346379    5.239166    6.138430   10.457851    8.945442   12.659619   11.54878319740.937240    0.285556   10.284395   13.715563    0.487812    0.130593    2.531343
