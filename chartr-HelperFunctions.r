@@ -63,9 +63,11 @@ returnListOfModels = function()
             "nluDDMdSvSb",             # 23
             
             "uDDMd",                   # 24
-            "uDDMdSvSb"                # 25 
+            "uDDMdSvSb",                # 25 
+            
+            "uDDMSvSbSu"               # 26
   );
-  modelIds = c(seq(-1,-21), seq(1,25));
+  modelIds = c(seq(-1,-21), seq(1,26));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -173,6 +175,9 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   upper_delay = 4;
   upper_lambda_urgency = 5;
   
+  upper_usigneta = 20;
+  lower_usigneta = 0;
+  
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
   TempNamesDDM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
@@ -183,8 +188,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(fakeParsDDM) = TempNamesDDM;
   
  TempNamesUGM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
-                "intercept","ieta","timecons_var","usign_var", "lambda", "aprime","k","delay");
-  fakeParsUGM = c(seq(1.5, 15,  length.out=NdriftRates) + 0.5*rnorm(nds), 12000, 0.3, 4, 0.1, 1000, 600, 200,1, 5, 0.3, 10,0.3);
+                "intercept","ieta","timecons_var","usign_var", "usigneta", "lambda", "aprime","k","delay");
+  fakeParsUGM = c(seq(1.5, 15,  length.out=NdriftRates) + 0.5*rnorm(nds), 12000, 0.3, 4, 0.1, 1000, 600, 200,1,1, 5, 0.3, 10,0.3);
   names(fakeParsUGM) = TempNamesUGM;
 
   switch(model, 
@@ -368,6 +373,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with Urgency and no gating and fixed Ter")
          },
          
+         uDDMSvSbSu={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","usigneta")
+           print("DDM with Urgency and no gating and fixed Ter")
+         },
+         
          uDDMdSvSb={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "intercept","ieta", "usign_var","delay")
            print("DDM with Urgency and no gating, constant slope, and fixed Ter")
@@ -467,7 +477,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
-                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var,  upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
+                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var, upper_usigneta, upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
   names(parUppersUGM)  = TempNamesUGM;
   
   
@@ -548,9 +558,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 #' @examples
 #' diffusionC(v=0.4, eta=0.05, aU=0.1,aL=0, Ter=0.3,z=0.05,nmc=1000,dt=0.001,stoch.s=0.1,maxTimeStep=4,fitUGM=-12)
 diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,stoch.s,
-                    maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, 
-                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, 
-                    VERBOSE=FALSE, FASTRAND=TRUE,
+                    maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, usigneta= usigneta, 
+                    sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE, FASTRAND=TRUE,
                     nLUT=nLUT, LUT = LUT) 
   # v - 
   # eta - 
@@ -829,6 +838,15 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            rts=(out$rt/1000)+Ter;
          }, 
          
+         
+         uDDMSvSbSu={
+           
+           out=.C("uDDMSvSbSu",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
+                  usign_var=usign_var, usigneta=usigneta, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
          uDDMdSvSb={
            out=.C("uDDMdSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, 
                   intercept=intercept,ieta=ieta,usign_var=usign_var, delay = delay,
@@ -1092,6 +1110,7 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
   
   timecons_var = params["timecons_var"]
   usign_var = params["usign_var"]
+  usigneta = params["usigneta"]
   
   sx = params["sx"]
   sy = params["sy"]
@@ -1104,7 +1123,7 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
   
   # Use some scaling and delay parameters as well for the analysis of urgency models
   list(v=v,eta=eta,aU=aU,aL=aL,z=z,Ter=Ter, intercept=intercept,st0=st0, ieta=ieta, zmin = zmin, 
-       zmax = zmax, timecons_var = timecons_var, usign_var = usign_var,
+       zmax = zmax, timecons_var = timecons_var, usign_var = usign_var, usigneta = usigneta,
        sx=sx, sy=sy, delay=delay, k=k, aprime = aprime, lambda = lambda)  
   #,contp=contp,timecons=timecons,usign=usign)
 }
@@ -1205,7 +1224,7 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
     tic(paste("Condition",v))
     tmp = diffusionC(v=ps[v], eta=ps["eta"], aU = ps["aU"], aL = aL, Ter=ps["Ter"], 
                      intercept=ps["intercept"], ieta=ps["ieta"], st0 = ps["st0"], z=z, zmin=ps["zmin"],
-                     zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], 
+                     zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], usigneta = ps["usigneta"],
                      sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
                      aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                      n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM, FASTRAND=FASTRAND, nLUT = nLUT, LUT = LUT)

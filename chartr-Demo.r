@@ -60,15 +60,15 @@ mtext('Reaction time (s)', side=2, outer=TRUE, line = -4, cex=1.5)
 
 
 
-model = "nluDDMSv"
+model = "uDDMSvSbSu"
 fP = paramsandlims(model,nCoh, fakePars = TRUE)
 currParams = fP$fakeParams
 currParams["intercept"] = 10;
-currParams["usign_var"] = 8;
-currParams["lambda"] = 3;
-currParams["k"] = 5;
+currParams["usign_var"] = 0.01;
+currParams["usigneta"] = 0.01;
 
-tic("nluDDM")
+
+tic("uDDMSvSbSu")
 R = simulateRTs(model, currParams , n=nmc, nds=nCoh,FASTRAND=FASTRAND)
 toc();
 
