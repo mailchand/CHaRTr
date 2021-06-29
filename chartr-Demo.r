@@ -63,9 +63,11 @@ mtext('Reaction time (s)', side=2, outer=TRUE, line = -4, cex=1.5)
 model = "uDDMSvSbSu"
 fP = paramsandlims(model,nCoh, fakePars = TRUE)
 currParams = fP$fakeParams
-currParams["intercept"] = 10;
+currParams["intercept"] = .25;
+currParams["aU"] = 12000;
+currParams["ieta"] = 0.5
 currParams["usign_var"] = 0.01;
-currParams["usigneta"] = 0.01;
+currParams["usigneta"] = 0.04;
 
 
 tic("uDDMSvSbSu")

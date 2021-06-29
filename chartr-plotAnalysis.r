@@ -48,7 +48,7 @@ if(RS2002)
 }else
 {
     # modelList = c('DDMSvSzSt','uDDMSvSbSt','bUGMSvSbSt','nluDDMSvSbSt','cDDMSvSzSt')
-    usemodel = c("DDMSvSz","uDDMSvSb","cDDMSvSz","bUGMSvSb")
+    usemodel = c("DDMSvSz","uDDMSvSb","cDDMSvSz","bUGMSvSb","uDDMSvSbSu")
 }
 #
 snams=names(data) ; 
@@ -180,7 +180,7 @@ for(mod in usemodel) {
     # Analyse and run each model with the parameters that are present 
       tmp = diffusionC(v=driftRate, eta=ps["eta"], aU = ps["aU"], aL = aL, Ter=ps["Ter"], 
                        intercept=ps["intercept"], ieta=ps["ieta"], st0 = ps["st0"], z=z, zmin=ps["zmin"],
-                       zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], 
+                       zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], usigneta = ps["usigneta"],
                        sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
                        aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                        n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM, FASTRAND=TRUE, nLUT=nLUT, LUT=LUT)
