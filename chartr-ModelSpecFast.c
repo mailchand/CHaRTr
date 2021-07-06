@@ -1629,6 +1629,66 @@ int bUGMSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *t
   PutRNGstate();
 }
 
+
+// ieta is a variable that adds variability to the urgency signal and multiplies everything.
+int bUGMSvSbSu(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
+             double *usign_var, double *intercept, double *ieta, double *usigneta,
+             double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+             int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,alpha,xu,samplev, sampleintercept;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  double sampleSlope;
+  
+  /* Convert some double inputs to integer types. */
+  
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  // weight for exponentially-weighted moving average
+  // alpha=(*dt)/((*dt)+(*timecons));
+  alpha=(*timecons)/((*timecons)+(*dt));
+  for (i=0;i<N;i++) {
+    samplev=(*v)+(*eta)*randomTable[returnRandomNumber(rangeL, rangeH)];
+    sampleintercept = (*intercept) + (*ieta)*unif_rand();
+    sampleSlope = (*usign_var) + (*usigneta)*unif_rand();
+    
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      //       x = x+(*dt)*(*v)+rhs*norm_rand();   // DDM model
+      // filtered signal from previous step + input from current step
+      //       x = alpha*x + (1-alpha)*((*dt)*(*v) + rhs*norm_rand());
+      x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*randomTable[returnRandomNumber(rangeL, rangeH)]);
+      
+      // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
+      xu = x*(sampleintercept + timeStep*(*dt)*(sampleSlope));  // urgency is multiplicative
+      if (xu>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (xu<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
 // Not tested yet. 19th February 2019.
 // For future use. Need to figure out parameter regimes in which cUGMSv would make sense.
 int cUGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, double *aprime, 

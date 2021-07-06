@@ -48,12 +48,12 @@ if(RS2002)
 }else
 {
     # modelList = c('DDMSvSzSt','uDDMSvSbSt','bUGMSvSbSt','nluDDMSvSbSt','cDDMSvSzSt')
-    usemodel = c("DDMSvSz","uDDMSvSb","cDDMSvSz","bUGMSvSb","uDDMSvSbSu")
+    usemodel = c("DDMSvSt","uDDMSvSb","cDDMSvSz","bUGMSvSb","uDDMSvSbSu")
 }
 #
 snams=names(data) ; 
 nsubj=length(data);
-nreps=5;
+nreps=15;
 lets=letters[seq(1,nreps)];
 
 # for now, only get reobj value (parameters later)
@@ -123,7 +123,6 @@ nmc=5e4
 
 # array to hold predictions
 nd=length(data[[1]]$p)  # number of drifts
-qps=seq(.1,.9,.2) ; nq=length(qps)
 predrts=array(dim=c(nq,2,nd,length(usemodel),nsubj),dimnames=list(qps,c("cor","err"),NULL,
                                                                   usemodel,snams))
 predps=array(dim=c(nd,length(usemodel),nsubj),dimnames=list(NULL,usemodel,snams))

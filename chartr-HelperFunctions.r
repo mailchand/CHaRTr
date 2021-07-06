@@ -63,11 +63,13 @@ returnListOfModels = function()
             "nluDDMdSvSb",             # 23
             
             "uDDMd",                   # 24
-            "uDDMdSvSb",                # 25 
+            "uDDMdSvSb",               # 25 
             
-            "uDDMSvSbSu"               # 26
+            "uDDMSvSbSu",              # 26
+            
+            "bUGMSvSbSu"               # 27
   );
-  modelIds = c(seq(-1,-21), seq(1,26));
+  modelIds = c(seq(-1,-21), seq(1,27));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -355,11 +357,21 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
                  movement time, and an intercept for urgency gating")
            
          },  
+         
+         bUGMSvSbSu={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","usigneta")
+           print("Diffusion model with some drift variance, urgency gating, variable residual 
+                 movement time, and an intercept for urgency gating")
+         },  
+         
+         
          bUGMSvSbSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","st0","usign_var")
            print("Diffusion model with some drift variance, urgency gating, variable residual 
                  movement time, and an intercept for urgency gating")
          }, 
+         
+         
          
          # A UGM model with variability in all the parameters so that the time constant is not causing unnecessary issues       
          UGMSvallVar={
@@ -696,6 +708,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          bUGMSvSb={
            out=.C("bUGMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
                   usign_var=usign_var,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000) + Ter;
+         },
+         
+    
+         
+         bUGMSvSbSu={
+           out=.C("bUGMSvSbSu",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
+                  usign_var=usign_var,intercept=intercept,ieta=ieta, usigneta=usigneta, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;

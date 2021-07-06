@@ -14,7 +14,7 @@ source("chartr-HelperFunctions.r")
 # 
 pmp=function(IC) {
   # IC is the information criteria (AIC or BIC) for a set of models under comparison
-  x=IC-min(IC)
+  x=(IC-min(IC))
   # PMP is the posterior model probability
   pmp=exp(-.5*x)/sum(exp(-.5*x)) 
   pmp       
