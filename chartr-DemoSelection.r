@@ -12,7 +12,7 @@ VERBOSE = TRUE;
 dataDir = "colgrid/"
 resultsDir = 'colgrid_Fits/'
 subjnam = "Olaf.Rdata"
-# subjnam ="Tiberius.Rdata"
+subjnam ="Tiberius.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)

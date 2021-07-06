@@ -1632,7 +1632,7 @@ int bUGMSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *t
 
 // ieta is a variable that adds variability to the urgency signal and multiplies everything.
 int bUGMSvSbSu(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
-             double *usign_var, double *intercept, double *ieta, double *usigneta,
+             double *ieta, double *usigneta,
              double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
              int *rangeLow, int *rangeHigh, double *randomTable)
 {
@@ -1658,8 +1658,8 @@ int bUGMSvSbSu(double *z, double *v,double *eta, double *aU, double *aL, double 
   alpha=(*timecons)/((*timecons)+(*dt));
   for (i=0;i<N;i++) {
     samplev=(*v)+(*eta)*randomTable[returnRandomNumber(rangeL, rangeH)];
-    sampleintercept = (*intercept) + (*ieta)*unif_rand();
-    sampleSlope = (*usign_var) + (*usigneta)*unif_rand();
+    sampleintercept = (*ieta)*unif_rand();
+    sampleSlope = (*usigneta)*unif_rand();
     
     x=*z; 
     timeStep=0;

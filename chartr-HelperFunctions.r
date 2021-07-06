@@ -359,7 +359,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          },  
          
          bUGMSvSbSu={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","usigneta")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","ieta","usigneta")
            print("Diffusion model with some drift variance, urgency gating, variable residual 
                  movement time, and an intercept for urgency gating")
          },  
@@ -717,7 +717,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          bUGMSvSbSu={
            out=.C("bUGMSvSbSu",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept,ieta=ieta, usigneta=usigneta, s=stoch.s,dt=dt,
+                  ieta=ieta, usigneta=usigneta, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
