@@ -316,43 +316,43 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          
          
          UGM={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter")
            print("Urgency Gating Model")
          },
          UGMSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0")
            print("Urgency gating model with some drift variance and variable residual movement time")
          },
          UGMSv={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta")
            print("Urgency Gating With Drift Variance")
            
          },
          UGMSvSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0")
            print("Urgency Gating, drift variance, variable residual movement time")
          },
          
          bUGM={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept")
            print("Urgency Gating with an intercept")           
          },
          bUGMSv={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept")
            print("Urgency Gating with an intercept")           
          },
          bUGMSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept", "st0","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept", "st0")
            print("Diffusion model with some drift variance, urgency gating, residual
                  movement time, and an intercept for urgency gating")
          }, 
          bUGMSvSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept", "st0","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept", "st0")
            print("Diffusion model with some drift variance, urgency gating, residual
                  movement time, and an intercept for urgency gating")
          }, 
          bUGMSvSb={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta")
            print("Diffusion model with some drift variance, urgency gating, variable residual 
                  movement time, and an intercept for urgency gating")
            
@@ -366,7 +366,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          
          
          bUGMSvSbSt={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","st0","usign_var")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","st0")
            print("Diffusion model with some drift variance, urgency gating, variable residual 
                  movement time, and an intercept for urgency gating")
          }, 
@@ -676,7 +676,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # 1
          bUGM={
            out=.C("bUGM",z=z,v=v,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
@@ -685,7 +685,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # 2
          bUGMSv={
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
                   randomTable = as.double(LUT));
@@ -695,7 +695,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # 3
          bUGMSt={
            out=.C("bUGM",z=z,v=v,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
                   randomTable = as.double(LUT));
@@ -707,7 +707,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # Assume that this intercept is variable as well. Assume constant slope though (1 in case of Cisek)
          bUGMSvSb={
            out=.C("bUGMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
@@ -726,7 +726,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # 5
          bUGMSvSt={
            out=.C("bUGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), 
                   randomTable = as.double(LUT));
@@ -737,7 +737,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          # Var intercept, Var Ter
          bUGMSvSbSt={
            out=.C("bUGMSvSb",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons=timecons,
-                  usign_var=usign_var,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
+                  usign=usign,intercept=intercept,ieta=ieta, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
@@ -1050,7 +1050,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          #UGM
          
          UGM={
-           out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign_var=usign_var, s=stoch.s,dt=dt,
+           out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
@@ -1058,14 +1058,14 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          # DDM model now adding variability of the drift rate
          UGMSv={
-           out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign_var=usign_var, s=stoch.s,dt=dt,
+           out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep, 
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000) + Ter;
          },
          # Now do the urgency model with variable Ter
          UGMSt={
-           out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign_var=usign_var, s=stoch.s,dt=dt,
+           out=.C("UGM",z=z,v=v,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);
@@ -1073,7 +1073,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          # Consider a UGM with variable drift rate and also variable non decision time. 
          UGMSvSt={
-           out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign_var=usign_var, s=stoch.s,dt=dt,
+           out=.C("UGMSv",z=z,v=v,eta=eta,aU=aU,aL=aL, timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                   response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+runif(n=nmc,min=Ter-st0/2,max=Ter+st0/2);

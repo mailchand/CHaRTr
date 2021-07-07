@@ -141,7 +141,7 @@ int DDM(double *z, double *v,double *aU, double *aL, double *s,double *dt,double
  maxTimeStep - number of time steps
  */
 
-int UGM(double *z, double *v,double *aU, double *aL, double *timecons, double *usign_var, double *s,
+int UGM(double *z, double *v,double *aU, double *aL, double *timecons, double *usign, double *s,
            double *dt,double *response,double *rt,double *n,double *maxTimeStep,int *rangeLow, int *rangeHigh, double *randomTable)
 {
   //   double t,rhs,x,hv,samplev;
@@ -177,7 +177,7 @@ int UGM(double *z, double *v,double *aU, double *aL, double *timecons, double *u
       
       
       // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
-      xu = x * timeStep*(*dt)*(*usign_var);  // urgency is multiplicative
+      xu = x * timeStep*(*dt)*(*usign);  // urgency is multiplicative
       
       // Done correctly with the dt multiplier!
       
@@ -1465,7 +1465,7 @@ int UGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *time
 
 
 int bUGM(double *z, double *v, double *aU, double *aL, double *timecons, 
-           double *usign_var, double *intercept, double *s,double *dt,double *response,
+           double *usign, double *intercept, double *s,double *dt,double *response,
            double *rt,double *n,double *maxTimeStep,
            int *rangeLow, int *rangeHigh, double *randomTable)
 {
@@ -1501,7 +1501,7 @@ int bUGM(double *z, double *v, double *aU, double *aL, double *timecons,
       //       x = alpha*x + (1-alpha)*((*dt)*(*v) + rhs*norm_rand());
       x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*randomTable[returnRandomNumber(rangeL, rangeH)]);
       // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
-      xu = x * (*intercept + timeStep*(*dt)*(*usign_var));  // urgency is multiplicative
+      xu = x * (*intercept + timeStep*(*dt)*(*usign));  // urgency is multiplicative
       if (xu>=*aU) {
         response[i]=(double) 1.0 ; 
         break ;
@@ -1521,7 +1521,7 @@ int bUGM(double *z, double *v, double *aU, double *aL, double *timecons,
 
 
 int bUGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
-                       double *usign_var, double *intercept, double *s,double *dt,double *response,
+                       double *usign, double *intercept, double *s,double *dt,double *response,
                        double *rt,double *n,double *maxTimeStep,
                        int *rangeLow, int *rangeHigh, double *randomTable)
 {
@@ -1557,7 +1557,7 @@ int bUGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *tim
       //       x = alpha*x + (1-alpha)*((*dt)*(*v) + rhs*norm_rand());
       x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*randomTable[returnRandomNumber(rangeL, rangeH)]);
       // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
-      xu = x * (*intercept + timeStep*(*dt)*(*usign_var));  // urgency is multiplicative
+      xu = x * (*intercept + timeStep*(*dt)*(*usign));  // urgency is multiplicative
       if (xu>=*aU) {
         response[i]=(double) 1.0 ; 
         break ;
@@ -1576,7 +1576,7 @@ int bUGMSv(double *z, double *v,double *eta, double *aU, double *aL, double *tim
 
 // ieta is a variable that adds variability to the urgency signal and multiplies everything.
 int bUGMSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *timecons, 
-                          double *usign_var, double *intercept, double *ieta,
+                          double *usign, double *intercept, double *ieta,
                           double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
                           int *rangeLow, int *rangeHigh, double *randomTable)
 {
@@ -1614,7 +1614,7 @@ int bUGMSvSb(double *z, double *v,double *eta, double *aU, double *aL, double *t
       x = alpha*x + (1-alpha)*((*dt)*samplev + rhs*randomTable[returnRandomNumber(rangeL, rangeH)]);
       
       // multiply linear urgency signal. usign determines size of urgency signal (1 in Cisek, 2 in Thura)
-      xu = x*(sampleintercept + timeStep*(*dt)*(*usign_var));  // urgency is multiplicative
+      xu = x*(sampleintercept + timeStep*(*dt)*(*usign));  // urgency is multiplicative
       if (xu>=*aU) {
         response[i]=(double) 1.0 ; 
         break ;
