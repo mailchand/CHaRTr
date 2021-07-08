@@ -28,7 +28,7 @@ modelList = unname(allValidModels$modelNames)
 #            "uDDM", "uDDMSt","uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
 
 modelList = c('DDM','DDMSv','DDMSvSz',
-              'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu',
+              'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu',
               'bUGM','bUGMSv','bUGMSvSb','bUGMSvSbSu'
               # 'UGM','UGMSv',
               #'cDDM','cDDMSv','cDDMSvSz'
@@ -37,7 +37,7 @@ modelList = c('DDM','DDMSv','DDMSvSz',
 #  'bUGM','bUGMSv', 'bUGMSvSb',
 
 modelList = c('DDMSvSt','DDMSt','uDDMSvSbSu','bUGMSt','bUGMSvSt',
-              'uDDMSt','UGMSvSt','cDDMSt','cDDMSvSt','bUGMSvSbSu','cDDMSvSzSt')
+              'uDDMSt','UGMSvSt','cDDMSt','cDDMSvSt','bUGMSvSbSu','cDDMSvSzSt','uDDMSbSu')
 # modelList = c('DDMSvSzSt','DDMSvSt','uDDMSvSbSu','bUGMSvSbSt','cDDMSvSzSt','cDDMSvSt','uDDMSvSbSt')
 
 #modelList = c('DDMSvSzSt','bUGMSvSbSt',
