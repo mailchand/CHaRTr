@@ -27,7 +27,7 @@ modelList = unname(allValidModels$modelNames)
 #             "cfkDDM",  "cfkDDMSt", "cfkDDMSvSzSt", "cfkDDMSvSt",
 #            "uDDM", "uDDMSt","uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
 
-modelList = c('DDM','DDMSv','DDMSvSz',
+modelList = c('DDMSvSt','DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu',
               'nluDDM','nluDDMSvSb'
               # 'UGM','UGMSv',
