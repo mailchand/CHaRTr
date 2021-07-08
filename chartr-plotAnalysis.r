@@ -48,7 +48,7 @@ if(RS2002)
 }else
 {
     # modelList = c('DDMSvSzSt','uDDMSvSbSt','bUGMSvSbSt','nluDDMSvSbSt','cDDMSvSzSt')
-    usemodel = c("DDMSvSt","uDDMSvSbSu","bUGMSt","cDDMSvSt","bUGMSvSt")
+    usemodel = c("DDMSvSt","uDDMSbSu","nluDDMSbSu")
 }
 #
 snams=names(data) ; 

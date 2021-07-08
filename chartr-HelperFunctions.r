@@ -471,11 +471,14 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
          },
          
-         nluDDMSbSu={
+         nluDDMSb={
            print("Nonlinear uDDM")
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var","lambda","k")
            print("DDM with nonlinear Urgency and no gating, constant slope, and variable Ter")
          },
+         
+         
+        
          
          nluDDMdSvSb={
            print("Nonlinear uDDM")

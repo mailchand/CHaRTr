@@ -12,7 +12,7 @@ VERBOSE = TRUE;
 dataDir = "colgrid/"
 resultsDir = 'colgrid_Fits/'
 subjnam = "Olaf.Rdata"
-# subjnam ="Tiberius.Rdata"
+subjnam ="Tiberius.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -21,33 +21,13 @@ N = sum(dat$n)
 allValidModels = returnListOfModels()
 modelList = unname(allValidModels$modelNames)
 
-# Use for figures 9a, b in the paper
-#modelList = c("DDM", "DDMSt","DDMSv","DDMSvSz","DDMSvSt","DDMSvSzSt",
-#             "cDDM","cDDMSvSt", "cDDMSvSzSt","cDDMSv", "cDDMSt",
-#             "cfkDDM",  "cfkDDMSt", "cfkDDMSvSzSt", "cfkDDMSvSt",
-#            "uDDM", "uDDMSt","uDDMSvSb", "uDDMSvSbSt", "uDDMSvSt","uDDMSv")
 
-modelList = c('DDMSvSt','DDM','DDMSv','DDMSvSz',
+modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu',
-              'nluDDM','nluDDMSvSb'
-              # 'UGM','UGMSv',
-              #'cDDM','cDDMSv','cDDMSvSz'
-           )
-#  'cDDM','cDDMSv','cDDMSvSz',
-#  'bUGM','bUGMSv', 'bUGMSvSb',
+              'nluDDM','nluDDMSvSb','nluDDMSbSu')
 
-#modelList = c('DDMSvSt','DDMSt','uDDMSvSbSu','bUGMSt','bUGMSvSt',
-#              'uDDMSt','UGMSvSt','cDDMSt','cDDMSvSt','bUGMSvSbSu','cDDMSvSzSt','uDDMSbSu')
-# modelList = c('DDMSvSzSt','DDMSvSt','uDDMSvSbSu','bUGMSvSbSt','cDDMSvSzSt','cDDMSvSt','uDDMSvSbSt')
 
-#modelList = c('DDMSvSzSt','bUGMSvSbSt',
-#              'uDDMSvSbSt','uDDMSvSt',
-#              'uDDMSvSbSu','cDDMSvSzSt')
-
-#modelList = c("DDM","DDMSv","DDMSvSz", "UGM","UGMSv",
-              #"bUGM","bUGMSv","bUGMSvSb","uDDM","uDDMSv","uDDMSvSb",
-              #"cDDM","cDDMSv","cDDMSvSz",
-              #"cfkDDM")
+# modelList = c('DDMSvSt','DDMSvSzSt','DDMSt','nluDDMSbSu','uDDMSbSu')
 
 modelOutput=list()
 # load each model's output and store in modelOutput
