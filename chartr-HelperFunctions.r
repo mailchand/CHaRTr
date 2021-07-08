@@ -52,6 +52,7 @@ returnListOfModels = function()
             "uDDMSvSb",                #  14
             "uDDMSvSt",                #  15
             "uDDMSvSbSt",              #  16 
+            "uDDMSbSu",
             
             "nluDDM",                  # 17
             "nluDDMSv",                # 18
@@ -69,7 +70,7 @@ returnListOfModels = function()
             
             "bUGMSvSbSu"               # 27
   );
-  modelIds = c(seq(-1,-21), seq(1,27));
+  modelIds = c(seq(-1,-21), seq(1,28));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -387,6 +388,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          
          uDDMSvSbSu={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","intercept","ieta","usign_var","usigneta")
+           print("DDM with Urgency and no gating and fixed Ter")
+         },
+         
+         uDDMSbSu={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var","usigneta")
            print("DDM with Urgency and no gating and fixed Ter")
          },
          
@@ -864,6 +870,14 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          uDDMSvSbSu={
            
            out=.C("uDDMSvSbSu",z=z,v=v,eta=eta,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
+                  usign_var=usign_var, usigneta=usigneta, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
+         uDDMSbSu={
+           
+           out=.C("uDDMSbSu",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
                   usign_var=usign_var, usigneta=usigneta, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
