@@ -1,8 +1,20 @@
-x = seq(0,1,0.001)
-lambda = 0.278
-k = 1.59
-y= 15 + 5.55*(1-exp(-(x/lambda)^k))
-df = data.frame(x = x, y = y)
+genUrgency = function(x, intercept)
+{
+  lambda = 0.126
+  k = 2.27
+  y = intercept + 10*(1-exp(-(x/lambda)^k))
+  y
+}
 
-p1 = ggplot(data=df, aes(x=x, y=y)) + geom_line() + theme_minimal()
-p1
+x = seq(0,1,0.001)
+output = matrix(ncol=5, nrow=length(x))
+for(i in seq(1,5))
+{
+  output[,i] = genUrgency(x, runif(1));
+}
+
+df = data.frame(output)
+p1 = ggplot(data=df, aes(x=x)) + geom_line(aes(y=y1)) + theme_minimal()
+p1 = p1 + geom_line(aes(y=y2))
+show(p1)
+

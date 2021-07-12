@@ -540,6 +540,67 @@ int uDDMSvSbSu(double *z, double *v,double *eta, double *aU, double *aL, double 
   }
   PutRNGstate();
 }
+int uDDMdSbSu(double *z, double *v, double *aU, double *aL, double *timecons, 
+             double *usign, double *intercept, double *ieta, double *usign_var, double *usigneta, double *delay,
+             double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep, 
+             int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,xu,samplev, sampleintercept, gamma;   // xu stores x + urgency signal at each time point
+  int N,i,timeStep,MaxTimeStep;
+  double sampleSlope, tCurr;
+  
+  /* Convert some double inputs to integer types. */
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  // weight for exponentially-weighted moving average
+  // alpha=(*dt)/((*dt)+(*timecons));
+  
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    sampleintercept = (*intercept) + (*ieta)*unif_rand();
+    sampleSlope = (*usign_var) + (*usigneta)*unif_rand();
+    
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      
+      tCurr = (timeStep*(*dt))/1000.0;
+      if(tCurr < *delay)
+      {
+        gamma = sampleintercept;
+      }
+      else
+      {
+        gamma = (sampleintercept + *usign_var*(timeStep*(*dt) - (*delay)*1000.0));
+      }
+      // This allows the specification of an increase in the momentary evidence over time.
+      x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
+      
+      if (x>=*aU) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
 
 int uDDMSbSu(double *z, double *v, double *aU, double *aL, double *timecons, 
                double *usign, double *intercept, double *ieta, double *usign_var, double *usigneta,

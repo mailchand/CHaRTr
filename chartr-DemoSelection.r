@@ -26,6 +26,7 @@ modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu',
               'nluDDM','nluDDMSvSb','nluDDMSbSu')
 
+modelList = c('DDMSvSt','DDMSvSzSt','nluDDMSbSu','uDDMSbSu','uDDMSvSbSu','cDDMSvSzSt')
 
 # modelList = c('DDMSvSt','DDMSvSzSt','DDMSt','nluDDMSbSu','uDDMSbSu')
 
