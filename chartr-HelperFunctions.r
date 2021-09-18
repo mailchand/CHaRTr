@@ -414,7 +414,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          
          
          ucDDM={
-           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var","lambda","aprime","k")
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","usign_var")
            print("DDM with Urgency and no gating, constant slope, and fixed Ter")
          }, 
          
@@ -797,7 +797,7 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          ucDDM={
            out=.C("ucDDM",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, 
-                  intercept=intercept, usign_var=usign_var,aprime = aprime,lambda=lambda,k=k, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  intercept=intercept, usign_var=usign_var,s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          },
