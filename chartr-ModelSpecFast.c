@@ -1359,7 +1359,7 @@ int lcDDM(double *z, double *v, double *lambda, double *aU, double *aL,
       //lower = *aU*(1 - (*lambda)*(currTime))*(.5 - *aprime);
       //upper = *aU - lower; 
       upper = *aU - (*lambda)*currTime;
-      lower = -upper;
+      lower = (*lambda)*currTime;
       
       // This allows the specification of an increase in the accumulated evidence over time.
       x = x+(*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
