@@ -34,6 +34,8 @@ returnListOfModels = function()
             "cfkDDMSvSt",              # -20
             "cfkDDMSvSzSt",            # -21
             
+            "lcDDM",
+            
             "UGM",                     #  1
             "UGMSt",                   #  2 
             "UGMSv",                   #  3
@@ -76,7 +78,7 @@ returnListOfModels = function()
             
             "ucDDM"
   );
-  modelIds = c(seq(-1,-21), seq(1,32));
+  modelIds = c(seq(-1,-22), seq(1,32));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -159,7 +161,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   fitUGM = listOfModels$modelIds[model]
   
   upper_v_ddm = .6;
-  upper_aU_ddm = .5;
+  upper_aU_ddm = 1;
   upper_Ter = 0.8;
   upper_st0 = 0.6;
   upper_eta = .3;
@@ -256,7 +258,10 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","st0","sx","sy","delay","zmin","zmax","intercept")
            print("Diffusion model with some drift variance and variable movement time and most importantly urgency")
          },
-         
+         lcDDM={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda")
+           print("Diffusion model with linear collapsing bounds")
+         },
          cDDM={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k")
            print("Diffusion model with some drift variance, variable movement time and collapsing bounds")
@@ -1058,6 +1063,13 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
          
          
          # --------------------------------------------- cDDM
+         lcDDM={
+           out=.C("lcDDM",z=z,v=v,lambda=lambda, aU=aU,aL=aL,
+                  s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=out$rt+Ter;
+         },
+         
          cDDM={
            out=.C("cDDM",z=z,v=v,lambda=lambda, aU=aU,aL=aL, aprime = aprime, k=k,
                   s=stoch.s,dt=dt,response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,

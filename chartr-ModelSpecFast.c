@@ -1320,6 +1320,65 @@ int uDDMSv(double *z, double *v,double *eta, double *aU, double *aL, double *tim
   PutRNGstate();
 }
 
+
+int lcDDM(double *z, double *v, double *lambda, double *aU, double *aL,
+         double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+         int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  //   double t,rhs,x,hv,samplev;
+  double rhs,x,samplev;
+  double upper, lower;
+  int N,i,timeStep,MaxTimeStep;
+  double currTime;
+  
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    samplev=(*v);
+    x=*z; 
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      
+      // Chand - 2018-08-17 noticed error in the implementation, used timeStep instead of dt, different timebases
+      // Chand - 2018-08-28 - noticed that a' could sometimes be greater than aU which sucks, so 
+      // Ended up making it a multiplier of aU and a max of 0.5 to ensure collapsing values
+      
+      currTime = timeStep*(*dt);
+      //lower = *aU*(1 - (*lambda)*(currTime))*(.5 - *aprime);
+      //upper = *aU - lower; 
+      upper = *aU - (*lambda)*currTime;
+      lower = -upper;
+      
+      // This allows the specification of an increase in the accumulated evidence over time.
+      x = x+(*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
+      
+      if (x>=upper) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=lower) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
+
+
 int cDDM(double *z, double *v, double *lambda, double *aU, double *aL, double *aprime, 
            double *k, double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
            int *rangeLow, int *rangeHigh, double *randomTable)
