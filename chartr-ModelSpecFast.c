@@ -1321,8 +1321,8 @@ int uDDMSv(double *z, double *v,double *eta, double *aU, double *aL, double *tim
 }
 
 
-int lcDDM(double *z, double *v, double *lambda, double *aU, double *aL,
-         double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+int lcDDM(double *z, double *v, double *lambda, double *aU, double *aL,double *aprime, 
+          double *k, double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
          int *rangeLow, int *rangeHigh, double *randomTable)
 {
   //   double t,rhs,x,hv,samplev;
@@ -1356,11 +1356,17 @@ int lcDDM(double *z, double *v, double *lambda, double *aU, double *aL,
       // Ended up making it a multiplier of aU and a max of 0.5 to ensure collapsing values
       
       currTime = timeStep*(*dt);
-      //lower = *aU*(1 - (*lambda)*(currTime))*(.5 - *aprime);
-      //upper = *aU - lower; 
-      upper = *aU - (*lambda)*currTime;
-      lower = (*lambda)*currTime;
-      
+      if(currTime > *lambda)
+      {          
+          upper = *aU*(0.5-*aprime);
+          lower = *aU - upper;
+      }
+      else
+      {
+          upper = *aU - *k*(currTime);
+          lower = *k*(currTime);
+      }
+  
       // This allows the specification of an increase in the accumulated evidence over time.
       x = x+(*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
       
