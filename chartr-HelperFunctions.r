@@ -261,6 +261,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          lcDDM={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k")
            print("Diffusion model with linear collapsing bounds")
+           upper_lambda = 4;
          },
          cDDM={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","lambda","aprime","k")
