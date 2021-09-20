@@ -1048,13 +1048,15 @@ int nluDDMdSvSb(double *z, double *v, double *eta, double *aU, double *aL, doubl
 
 
 int ucDDM(double *z, double *v, double *aU, double *aL, double *timecons, 
-          double *usign, double *intercept, double *usign_var,
+          double *usign, double *intercept, double *usign_var, 
+          double *lambda, double *aprime, double *k,
           double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
           int *rangeLow, int *rangeHigh, double *randomTable)
 {
   //   double t,rhs,x,hv,samplev;
-  double rhs,x,xu,samplev, gamma;   // xu stores x + urgency signal at each time point
+  double rhs,x,xu,samplev, gamma, currTime;   // xu stores x + urgency signal at each time point
   int N,i,timeStep,MaxTimeStep;
+  double upper, lower;
   
   /* Convert some double inputs to integer types. */
   int rangeL, rangeH;
@@ -1075,17 +1077,20 @@ int ucDDM(double *z, double *v, double *aU, double *aL, double *timecons,
     do 
     {
       timeStep=timeStep+1;
-      // Nothing fancy in this signal except a simple linearly increasing time varying signal with an intercept
-      // and a slope term.
+      
+      currTime = (timeStep*(*dt))/1000.0; // converted to ms
       gamma = (*intercept + *usign_var*timeStep*(*dt));
       // This allows the specification of an increase in the momentary evidence over time.
       x = x+ (*dt)*samplev*gamma+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
       
-      if (x>=*aU) {
+      lower = *aU*(1 - exp(-pow((currTime)/(*lambda),*k)))*(1 - *aprime)-*aU;
+      upper = -lower; 
+      
+      if (x>=upper) {
         response[i]=(double) 1.0 ; 
         break ;
       }
-      if (x<=*aL) {
+      if (x<=lower) {
         response[i]=(double) 2.0 ; 
         break ;
       }
