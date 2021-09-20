@@ -1081,7 +1081,7 @@ int ucDDM(double *z, double *v, double *aU, double *aL, double *timecons,
       currTime = (timeStep*(*dt))/1000.0; // converted to ms
       gamma = (*intercept + *usign_var*timeStep*(*dt));
       // This allows the specification of an increase in the momentary evidence over time.
-      x = x+ (*dt)*samplev*gamma+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
+      x = x+ ((*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)])*gamma;
       
       lower = *aU*(1 - exp(-pow((currTime)/(*lambda),*k)))*(1 - *aprime)-*aU;
       upper = -lower; 
