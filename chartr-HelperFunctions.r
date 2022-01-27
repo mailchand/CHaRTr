@@ -15,6 +15,7 @@ returnListOfModels = function()
             "DDMSvSz",                 # -4
             "DDMSvSt",                 # -5
             "DDMSvSzSt",               # -6
+            "DDMSvSzSa",
             
             "cDDM",                    # -7
             "cDDMSv",                  # -8
@@ -34,7 +35,8 @@ returnListOfModels = function()
             "cfkDDMSvSt",              # -20
             "cfkDDMSvSzSt",            # -21
             
-            "lcDDM",
+            "lcDDM",                   # -22
+            
             
             "UGM",                     #  1
             "UGMSt",                   #  2 
@@ -78,7 +80,7 @@ returnListOfModels = function()
             
             "ucDDM"
   );
-  modelIds = c(seq(-1,-22), seq(1,32));
+  modelIds = c(seq(-1,-23), seq(1,32));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -162,6 +164,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   
   upper_v_ddm = .6;
   upper_aU_ddm = 1;
+  upper_boundv_ddm=1;
   upper_Ter = 0.8;
   upper_st0 = 0.6;
   upper_eta = .3;
@@ -192,10 +195,10 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   NdriftRates = nds - nstart + 1; # Say 6 drift rates, starting at 2, means 5 conditions
   
   TempNamesDDM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
-                "zmin","zmax","sx","sy","delay","lambda", "aprime","k","intercept");
+                "zmin","zmax","sx","sy","delay","lambda", "aprime","k","intercept","boundv");
   
  
-  fakeParsDDM = c(seq(0.04, 0.4, length.out = NdriftRates), 0.08, 0.3, 0.1, 0.15, 0.08, 0.12, 9, 9,0.14, 5, 0.3, 10, 4);
+  fakeParsDDM = c(seq(0.04, 0.4, length.out = NdriftRates), 0.08, 0.3, 0.1, 0.15, 0.08, 0.12, 9, 9,0.14, 5, 0.3, 10, 4,0.2);
   names(fakeParsDDM) = TempNamesDDM;
   
  TempNamesUGM = c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta", "st0",
@@ -216,6 +219,12 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax")
            print("Diffusion model, Variable Baseline, Variable Movement Time")
          },
+         DDMSvSzSa={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","eta","zmin","zmax","boundv")
+           print("Diffusion model, Variable Baseline, Variable Movement Time")
+        
+         },
+         
          DDMSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","st0")
            print("Diffusion model with some drift variance and variable movement time")
@@ -535,7 +544,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
          }
   )  
   parUppersDDM = c(rep(upper_v_ddm,NdriftRates), upper_aU_ddm, upper_Ter, upper_eta, upper_st0,
-                   upper_zmin, upper_zmax, 50, 50, 3, upper_lambda,upper_aprime,upper_k, upper_intercept_ddm);
+                   upper_zmin, upper_zmax, 50, 50, 3, upper_lambda,upper_aprime,upper_k, upper_intercept_ddm, upper_boundv_ddm);
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
@@ -574,7 +583,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   {
     fakeParams = NULL;
   }
-  
+
   list(parnames=parnames, uppers=uppers, lowers=lowers, fitUGM=fitUGM, fakeParams = fakeParams)
   
 }
@@ -619,7 +628,7 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
 #'
 #' @examples
 #' diffusionC(v=0.4, eta=0.05, aU=0.1,aL=0, Ter=0.3,z=0.05,nmc=1000,dt=0.001,stoch.s=0.1,maxTimeStep=4,fitUGM=-12)
-diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,stoch.s,
+diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, boundv, nmc, dt,stoch.s,
                     maxTimeStep,fitUGM,timecons,usign=1, timecons_var = timecons_var, usign_var = usign_var, usigneta= usigneta, 
                     sx=sx, sy=sy, delay=delay, lambda = lambda, aprime = aprime, k = k, VERBOSE=FALSE, FASTRAND=TRUE,
                     nLUT=nLUT, LUT = LUT) 
@@ -707,6 +716,13 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, nmc, dt,s
            rts=out$rt+Ter;
          },
          
+         
+         DDMSvSzSa={
+           out=.C("DDMSvSzSa",zmin=zmin, zmax=zmax,v=v,aU=aU,aL=aL,eta=eta,boundv = boundv,s=stoch.s,dt=dt,
+                  response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=out$rt+Ter;
+         },
          # Identical to the ratcliffSt model
          
          # 6
@@ -1238,6 +1254,7 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
   ieta = params["ieta"]
   zmin = params["zmin"]
   zmax = params["zmax"]
+  boundv = params["boundv"]
   
   timecons_var = params["timecons_var"]
   usign_var = params["usign_var"]
@@ -1255,7 +1272,7 @@ makeparamlist=function(params,fitUGM,ncohs, zeroCoh=FALSE)
   # Use some scaling and delay parameters as well for the analysis of urgency models
   list(v=v,eta=eta,aU=aU,aL=aL,z=z,Ter=Ter, intercept=intercept,st0=st0, ieta=ieta, zmin = zmin, 
        zmax = zmax, timecons_var = timecons_var, usign_var = usign_var, usigneta = usigneta,
-       sx=sx, sy=sy, delay=delay, k=k, aprime = aprime, lambda = lambda)  
+       sx=sx, sy=sy, delay=delay, k=k, aprime = aprime, lambda = lambda, boundv = boundv)  
   #,contp=contp,timecons=timecons,usign=usign)
 }
 
@@ -1315,7 +1332,10 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
   
   if(fitUGM < 0) {
     aL=0 ; z=ps["aU"]/2
-    dt=.001 ; stoch.s=.1 ; usign=0 ; timecons=0
+    dt=.001 ; 
+    stoch.s=.1 ; 
+    usign=0 ; 
+    timecons=0;
   } else {
     aL=-ps["aU"] ; 
     z=0
@@ -1355,7 +1375,7 @@ simulateRTs = function(model, ps, nmc=50000, maxiter=10000, nds=7, showAxisLabel
     tic(paste("Condition",v))
     tmp = diffusionC(v=ps[v], eta=ps["eta"], aU = ps["aU"], aL = aL, Ter=ps["Ter"], 
                      intercept=ps["intercept"], ieta=ps["ieta"], st0 = ps["st0"], z=z, zmin=ps["zmin"],
-                     zmax=ps["zmax"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], usigneta = ps["usigneta"],
+                     zmax=ps["zmax"], boundv=ps["boundv"], timecons_var=ps["timecons_var"], usign_var=ps["usign_var"], usigneta = ps["usigneta"],
                      sx=ps["sx"], sy=ps["sy"], delay=ps["delay"], lambda=ps["lambda"], 
                      aprime=ps["aprime"], k=ps["k"], timecons=timecons, usign=usign, s=stoch.s,dt=dt,
                      n=nmc,maxTimeStep=maxTimeStep, fitUGM=fitUGM, FASTRAND=FASTRAND, nLUT = nLUT, LUT = LUT)

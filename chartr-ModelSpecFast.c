@@ -1712,7 +1712,50 @@ int cfkDDMSvSz(double *zmin, double *zmax, double *v, double *eta, double *lambd
   PutRNGstate();
 }
 
-
+int DDMSvSzSa(double *zmin, double *zmax, double *v,double *aU, double *aL, double *eta, double *boundv,
+            double *s,double *dt,double *response,double *rt,double *n,double *maxTimeStep,
+            int *rangeLow, int *rangeHigh, double *randomTable)
+{
+  double rhs,x,samplev;
+  int N,i,timeStep,MaxTimeStep;
+  
+  int rangeL, rangeH;
+  rangeL = (int) *rangeLow;
+  rangeH = (int) *rangeHigh;
+  
+  double upperBound, lowerBound;
+  
+  
+  /* Convert some double inputs to integer types. */
+  N=(int) *n;
+  MaxTimeStep =(int) *maxTimeStep;
+  GetRNGstate();
+  rhs=sqrt(*dt)*(*s);
+  for (i=0;i<N;i++) {
+    
+    samplev=(*v)+(*eta)*randomTable[returnRandomNumber(rangeL, rangeH)];
+    x=*zmin + (*zmax-*zmin)*unif_rand();
+    upperBound = *aU + *boundv*unif_rand();
+    
+    timeStep=0;
+    response[i]=(double) -1.0 ;
+    do 
+    {
+      timeStep=timeStep+1;
+      x = x+(*dt)*samplev+rhs*randomTable[returnRandomNumber(rangeL, rangeH)];
+      if (x>=upperBound) {
+        response[i]=(double) 1.0 ; 
+        break ;
+      }
+      if (x<=*aL) {
+        response[i]=(double) 2.0 ; 
+        break ;
+      }
+    } while (timeStep<MaxTimeStep) ; 
+    rt[i]=((double) timeStep)*(*dt) - (*dt)/((double) 2.0);
+  }
+  PutRNGstate();
+}
 
 
 int DDMSvSz(double *zmin, double *zmax, double *v,double *aU, double *aL, double *eta,
