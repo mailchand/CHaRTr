@@ -57,6 +57,7 @@ returnListOfModels = function()
             "uDDMSvSt",                #  15
             "uDDMSvSbSt",              #  16 
             "uDDMSbSu",
+            "uDDMSbSuO",
           
             
             "nluDDM",                  # 17
@@ -80,7 +81,7 @@ returnListOfModels = function()
             
             "ucDDM"
   );
-  modelIds = c(seq(-1,-23), seq(1,32));
+  modelIds = c(seq(-1,-23), seq(1,33));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -412,10 +413,12 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with Urgency and no gating and fixed Ter")
          },
          
-         uDDMSbSu={
+         uDDMSbSuO={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var","usigneta")
            print("DDM with Urgency and no gating and fixed Ter")
          },
+         
+         
          
          uDDMSbSuSt={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var","usigneta","st0")
@@ -979,6 +982,16 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, boundv, n
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          }, 
+         
+         uDDMdSbSuO={
+           
+           out=.C("uDDMdSbSu",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
+                  usign_var=usign_var, usigneta=usigneta, delay=delay, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
+         
          
          uDDMSbSuSt={
            out=.C("uDDMSbSu",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
