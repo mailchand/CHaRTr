@@ -637,8 +637,8 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
         multiplierV = 1.1;
     }
       
-    sampleintercept = (*intercept) + multiplierV*(*ieta)*unif_rand();
-    sampleSlope = (*usign_var) + multiplierV*(*usigneta)*unif_rand();
+    sampleintercept = (*intercept) + (*ieta)*unif_rand();
+    sampleSlope = (*usign_var) + (*usigneta)*unif_rand();
     
     x=*z; 
     timeStep=0;
@@ -648,7 +648,7 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
       timeStep=timeStep+1;
       
       // No filtering and just addition of this signal
-      gamma = (sampleintercept + sampleSlope*timeStep*(*dt));
+      gamma = (sampleintercept + sampleSlope*timeStep*(*dt))*multiplierV;
       
       
       // This allows the specification of an increase in the momentary evidence over time.
