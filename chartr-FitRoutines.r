@@ -64,7 +64,7 @@ getpreds=function(x,dat,nmc,contp,ncohs,fitUGM,pred=F,gub,
   for(N in 1:length(ncohs)){
     tmp=diffusionC(v=z$v[N],eta=z$eta,aU=z$aU,aL=z$aL,Ter=z$Ter,
                    intercept=z$intercept, ieta=z$ieta, st0=z$st0,
-                   z=z$z, zmin=z$zmin,zmax=z$zmax,timecons_var = z$timecons_var, usign_var = z$usign_var, usigneta = z$usigneta,
+                   z=z$z, zmin=z$zmin,zmax=z$zmax,boundv = z$boundv, timecons_var = z$timecons_var, usign_var = z$usign_var, usigneta = z$usigneta,
                    sx = z$sx, sy=z$sy, delay=z$delay,lambda = z$lambda, aprime = z$aprime, k = z$k,
                    nmc=nmc,dt=stepsize,stoch.s=stoch.s,maxTimeStep=maxTimeStep,fitUGM=fitUGM, timecons=timecons,usign=usign, 
                    nLUT=nLUT, LUT=LUT)   

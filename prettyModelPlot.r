@@ -2,7 +2,7 @@ require(ggplot2)
 require(gridExtra)
 require(ggthemes)
 
-useAIC = TRUE;
+useAIC = FALSE;
 
 # 1. Calculate AIC, BIC, AIC weights, BIC weights
 # Useful for model averaging and model selection.
@@ -11,8 +11,11 @@ ms=modelSelection(models=modelOutput, data=dat)
 par(mar=c(20,8,5,2))
 if(useAIC){ 
   x = ms$AIC-ms$AIC[1]
-}else
+  labV= 'AIC'
+}else{
   x = ms$BIC-ms$BIC[1]
+  labV = 'BIC'
+}  
 
 orderV = order(-x);
 currentModels = rownames(ms);

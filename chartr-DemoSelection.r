@@ -25,8 +25,7 @@ modelList = unname(allValidModels$modelNames)
 modelList = c('DDM','DDMSv','DDMSvSz',
               'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu');
               # 'nluDDM','nluDDMSvSb','nluDDMSbSu')
-
-# modelList = c('DDM','uDDM','nluDDM','cDDM','UGM','bUGM')
+modelList = c('DDM','DDMSvSz','uDDMSbSu','nluDDMSbSu','cDDMSvSz')
 
 # modelList = c('DDMSvSt','DDMSvSzSt','DDMSt','nluDDMSbSu','uDDMSbSu')
 
