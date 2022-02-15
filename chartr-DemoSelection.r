@@ -12,7 +12,7 @@ VERBOSE = TRUE;
 dataDir = "colgrid/"
 resultsDir = 'colgrid_Fits/'
 subjnam = "Olaf.Rdata"
-# subjnam ="Tiberius.Rdata"
+# subjnam = "Tiberius.Rdata"
 
 load(paste(dataDir,subjnam,sep=""))
 N = sum(dat$n)
@@ -23,11 +23,8 @@ modelList = unname(allValidModels$modelNames)
 
 
 modelList = c('DDM','DDMSv','DDMSvSz',
-              'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu',
-              'nluDDM','nluDDMSvSb','nluDDMSbSu','cDDM','cDDMSvSz','cDDMSv')
-
-modelList = c('DDM','uDDM','cDDM','lcDDM','nluDDM','bUGM','UGM')
-
+              'uDDM','uDDMSvSb','uDDMSv','uDDMSvSbSu','uDDMSbSu');
+              # 'nluDDM','nluDDMSvSb','nluDDMSbSu')
 modelList = c('DDM','DDMSvSz','uDDMSbSu','nluDDMSbSu','cDDMSvSz')
 
 # modelList = c('DDMSvSt','DDMSvSzSt','DDMSt','nluDDMSbSu','uDDMSbSu')
