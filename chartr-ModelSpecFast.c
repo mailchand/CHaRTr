@@ -634,10 +634,10 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
     {
       sampleintercept = (*intercept);
       sampleSlope = *(usign_var);
-      if(response[i-1]==2)
+      if(response[i-1]==1)
       {
-        sampleintercept = (*intercept) - (*ieta);
-        sampleSlope = (*usign_var) - (*usigneta);  
+        sampleintercept = (*intercept) + (*ieta);
+        sampleSlope = (*usign_var) + (*usigneta);  
       }
     }
     else
