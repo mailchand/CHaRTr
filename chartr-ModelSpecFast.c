@@ -612,7 +612,7 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
   //   double t,rhs,x,hv,samplev;
   double rhs,x,xu,samplev, sampleintercept, gamma;   // xu stores x + urgency signal at each time point
   int N,i,timeStep,MaxTimeStep;
-  double multiplierV = 0.9;
+  // double multiplierV = 0.9;
   double sampleSlope;
   
   /* Convert some double inputs to integer types. */
@@ -632,13 +632,21 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
     samplev=(*v);
     if(i >= 1)
     {
-      multiplierV = 0.9;
-      if(response[i-1]==1)
-        multiplierV = 1.1;
+      sampleintercept = (*intercept);
+      sampleSlope = *(usign_var);
+      if(response[i-1]==2)
+      {
+        sampleintercept = (*intercept) - (*ieta);
+        sampleSlope = (*usign_var) - (*usigneta);  
+      }
+    }
+    else
+    {
+      sampleintercept = (*intercept);
+      sampleSlope = *(usign_var);
     }
       
-    sampleintercept = (*intercept) + (*ieta)*unif_rand();
-    sampleSlope = (*usign_var) + (*usigneta)*unif_rand();
+   
     
     x=*z; 
     timeStep=0;
@@ -648,7 +656,7 @@ int uDDMSbSuO(double *z, double *v, double *aU, double *aL, double *timecons,
       timeStep=timeStep+1;
       
       // No filtering and just addition of this signal
-      gamma = (sampleintercept + sampleSlope*timeStep*(*dt))*multiplierV;
+      gamma = (sampleintercept + sampleSlope*timeStep*(*dt));
       
       
       // This allows the specification of an increase in the momentary evidence over time.
