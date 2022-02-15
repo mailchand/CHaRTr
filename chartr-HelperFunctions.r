@@ -58,6 +58,7 @@ returnListOfModels = function()
             "uDDMSvSbSt",              #  16 
             "uDDMSbSu",
             "uDDMSbSuO",
+            "uDDMSbO",
           
             
             "nluDDM",                  # 17
@@ -81,7 +82,7 @@ returnListOfModels = function()
             
             "ucDDM"
   );
-  modelIds = c(seq(-1,-23), seq(1,33));
+  modelIds = c(seq(-1,-23), seq(1,34));
   modelNames <- setNames( modelList, modelIds)
   names(modelIds) = modelList
   list(modelIds=modelIds,modelNames=modelNames)
@@ -418,6 +419,11 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
            print("DDM with Urgency and no gating and fixed Ter")
          },
          
+         uDDMSbO={
+           parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var")
+           print("DDM with Urgency and no gating and fixed Ter")
+         },
+         
          uDDMSbSuO={
            parnames=c(paste("v",(nstart):(nds),sep=""),"aU","Ter","intercept","ieta","usign_var","usigneta")
            print("DDM with Urgency and no gating and fixed Ter")
@@ -554,7 +560,8 @@ paramsandlims=function(model, nds, fakePars=FALSE, nstart=1)
   names(parUppersDDM) = TempNamesDDM;
   
   parUppersUGM = c(rep(upper_v_urgency,NdriftRates), upper_aU_urgency, upper_Ter, upper_eta_urgency, upper_st0,
-                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var, upper_usigneta, upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
+                   upper_intercept, upper_ieta, upper_timecons_var, upper_usign_var, upper_usigneta, 
+                   upper_lambda_urgency,upper_aprime,upper_k, upper_delay)
   names(parUppersUGM)  = TempNamesUGM;
   
   
@@ -985,6 +992,15 @@ diffusionC=function(v,eta,aU,aL,Ter,intercept,ieta,st0, z, zmin, zmax, boundv, n
                   rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
            rts=(out$rt/1000)+Ter;
          }, 
+         
+         uDDMSbO={
+           
+           out=.C("uDDMSbO",z=z,v=v,aU=aU,aL=aL,timecons = timecons, usign=usign, intercept=intercept,ieta=ieta,
+                  usign_var=usign_var, s=stoch.s,dt=dt, response=resps,rt=rts,n=nmc,maxTimeStep=maxTimeStep,
+                  rangeLow =as.integer(0), rangeHigh = as.integer(nLUT-1), randomTable = as.double(LUT));
+           rts=(out$rt/1000)+Ter;
+         }, 
+         
          
          uDDMdSbSu={
            
